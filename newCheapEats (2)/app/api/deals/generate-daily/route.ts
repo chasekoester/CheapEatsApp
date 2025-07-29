@@ -4,6 +4,8 @@ import { GoogleSheetsService, SheetDeal } from '../sheets-service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const runtime = 'nodejs'
+export const maxDuration = 60
 
 // Major cities to generate deals for
 const MAJOR_CITIES = [
