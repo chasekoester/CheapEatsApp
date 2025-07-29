@@ -50,7 +50,6 @@ export default function Navigation() {
             href="/deals" 
             style={{
               textDecoration: 'none',
-              color: '#1f2937',
               fontSize: 'clamp(14px, 3vw, 16px)',
               fontWeight: '600',
               padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
