@@ -4,6 +4,8 @@ import { AIFastFoodGenerator } from '../ai-fast-food-generator'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const runtime = 'nodejs'
+export const maxDuration = 45
 
 // This endpoint runs automatically to ensure deals are always available
 export async function GET() {
