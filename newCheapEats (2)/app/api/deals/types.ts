@@ -39,14 +39,14 @@ export interface Deal {
   
   // Source metadata
   source: string
-  sourceType: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media' | 'user_submitted'
+  sourceType: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media' | 'user_submitted' | 'ai_generated'
   scrapedAt: string
   confidence: number // 0-100 confidence in deal accuracy
 }
 
 export interface DealSource {
   name: string
-  type: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media'
+  type: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media' | 'ai_generated'
   baseUrl: string
   enabled: boolean
   rateLimit: number // requests per minute

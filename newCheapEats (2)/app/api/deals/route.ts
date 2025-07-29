@@ -4,6 +4,8 @@ import { GoogleSheetsService } from './sheets-service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const runtime = 'nodejs'
+export const maxDuration = 30
 
 const locationCoordinates: Record<string, { latitude: number; longitude: number }> = {
   'New York': { latitude: 40.7128, longitude: -74.0060 },
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
               deal.longitude
             ),
             // Convert to the expected format
-            sourceType: 'sheet_stored' as const,
+            sourceType: 'user_submitted' as const,
             scrapedAt: new Date().toISOString(),
             confidence: 95,
             imageUrl: '/api/placeholder/400/300'
