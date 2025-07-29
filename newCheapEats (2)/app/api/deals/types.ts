@@ -15,7 +15,7 @@ export interface Deal {
   
   // Enhanced fields for better deal quality
   qualityScore: number // 0-100 score based on various factors
-  dealType: 'percentage_off' | 'dollar_off' | 'bogo' | 'free_item' | 'combo_deal' | 'limited_time' | 'membership'
+  dealType: 'percentage_off' | 'dollar_off' | 'bogo' | 'free_item' | 'combo_deal' | 'limited_time' | 'membership' | 'app_exclusive'
   restrictions?: string[]
   requiresApp?: boolean
   requiresMembership?: boolean
