@@ -46,7 +46,7 @@ export interface Deal {
 
 export interface DealSource {
   name: string
-  type: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media'
+  type: 'official_api' | 'restaurant_website' | 'deal_aggregator' | 'social_media' | 'ai_generated'
   baseUrl: string
   enabled: boolean
   rateLimit: number // requests per minute
