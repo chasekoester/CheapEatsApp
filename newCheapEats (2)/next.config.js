@@ -3,9 +3,9 @@ const nextConfig = {
   // Optimize for static generation where possible
   output: 'standalone',
 
-  // Enable experimental features for better Netlify compatibility
+  // Experimental features (appDir is now stable in Next.js 14)
   experimental: {
-    appDir: true,
+    serverComponentsExternalPackages: ['jsdom', 'cheerio'],
   },
 
   // Image optimization settings for Netlify
@@ -19,10 +19,7 @@ const nextConfig = {
     ],
   },
 
-  // Disable telemetry for cleaner builds
-  telemetry: {
-    disabled: true,
-  },
+
 
   // Webpack optimizations
   webpack: (config, { isServer }) => {
