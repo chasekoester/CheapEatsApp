@@ -63,7 +63,7 @@ export async function GET(request: Request) {
               deal.longitude
             ),
             // Convert to the expected format
-            sourceType: 'sheet_stored' as const,
+            sourceType: 'user_submitted' as const,
             scrapedAt: new Date().toISOString(),
             confidence: 95,
             imageUrl: '/api/placeholder/400/300'
@@ -136,7 +136,7 @@ export async function GET(request: Request) {
     })
 
   } catch (error) {
-    console.error('💥 Fast Food Deals API Error:', error)
+    console.error('�� Fast Food Deals API Error:', error)
 
     // Return a meaningful error response
     let errorMessage = 'Unable to find fast food deals at this time.'
