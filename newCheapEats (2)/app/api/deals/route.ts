@@ -4,6 +4,8 @@ import { GoogleSheetsService } from './sheets-service'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+export const runtime = 'nodejs'
+export const maxDuration = 30
 
 const locationCoordinates: Record<string, { latitude: number; longitude: number }> = {
   'New York': { latitude: 40.7128, longitude: -74.0060 },
@@ -136,7 +138,7 @@ export async function GET(request: Request) {
     })
 
   } catch (error) {
-    console.error('�� Fast Food Deals API Error:', error)
+    console.error('💥 Fast Food Deals API Error:', error)
 
     // Return a meaningful error response
     let errorMessage = 'Unable to find fast food deals at this time.'
