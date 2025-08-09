@@ -176,7 +176,7 @@ export async function GET(request: Request) {
       } catch (aiError) {
         console.error('AI generation failed:', aiError)
         // Use hardcoded fallback deals
-        deals = await this.getHardcodedFallbackDeals(location)
+        deals = getHardcodedFallbackDeals(location)
         dataSource = 'Fallback Static'
       }
     }
