@@ -1,5 +1,5 @@
 [build]
-  base = "newCheapEats (2)"
+  base = "CheapEatsApp"
   command = "npm run build"
   publish = ".next"
 
