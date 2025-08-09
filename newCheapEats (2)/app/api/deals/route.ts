@@ -87,9 +87,26 @@ export async function GET(request: Request) {
     // Fallback to AI generation if no sheet deals or sheets not configured
     if (deals.length === 0) {
       console.log('🤖 Fallback: Generating AI deals...')
-      const aiGenerator = new AIFastFoodGenerator()
-      deals = await aiGenerator.generateFastFoodDeals(location, requestedCount)
-      dataSource = 'AI Generated'
+      try {
+        const aiGenerator = new AIFastFoodGenerator()
+
+        // Add timeout to AI generation to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('AI generation timeout')), 20000) // 20 second timeout
+        })
+
+        deals = await Promise.race([
+          aiGenerator.generateFastFoodDeals(location, requestedCount),
+          timeoutPromise
+        ]) as any
+
+        dataSource = 'AI Generated'
+      } catch (aiError) {
+        console.error('AI generation failed:', aiError)
+        // Use hardcoded fallback deals
+        deals = await this.getHardcodedFallbackDeals(location)
+        dataSource = 'Fallback Static'
+      }
     }
 
     if (deals.length === 0) {
