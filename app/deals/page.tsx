@@ -223,9 +223,10 @@ const getRestaurantBrandColor = (restaurantName: string) => {
     }
   }
 
-  if (bestMatch) {
-    return FAST_FOOD_LOGOS[bestMatch].bgColor
-  }
+if (bestMatch && bestMatch in FAST_FOOD_LOGOS) {
+  return FAST_FOOD_LOGOS[bestMatch as keyof typeof FAST_FOOD_LOGOS].bgColor;
+}
+
 
   // Default color for unknown restaurants
   return '#6B7280'
