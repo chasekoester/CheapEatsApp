@@ -33,7 +33,13 @@ export class AIFastFoodGenerator {
   async generateFastFoodDeals(location: { latitude: number; longitude: number }, count: number = 75): Promise<Deal[]> {
     try {
       console.log(`🤖 Generating ${count} AI-powered fast food deals...`)
-      
+
+      // Skip AI generation if no API key or disabled
+      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'test-key-disabled') {
+        console.log('⚠️ OpenAI API disabled, using fallback deals')
+        return this.getFallbackFastFoodDeals(location, count)
+      }
+
       const prompt = `You are a fast food deals expert. Generate exactly ${count} realistic, current fast food deals for coordinates ${location.latitude}, ${location.longitude}.
 
 Create deals that customers would actually find at these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
@@ -73,12 +79,20 @@ Categories to use: Fast Food, Pizza, Mexican, Coffee, Sandwiches, Chicken, Burge
 Deal types: percentage_off, dollar_off, bogo, free_item, combo_deal, limited_time, app_exclusive
 Keep descriptions under 150 characters and make each deal unique and realistic.`
 
-      const completion = await this.openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 4000,
-        temperature: 0.7,
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('OpenAI API timeout')), 15000) // 15 second timeout
       })
+
+      const completion = await Promise.race([
+        this.openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 4000,
+          temperature: 0.7,
+        }),
+        timeoutPromise
+      ]) as any
 
       const response = completion.choices[0]?.message?.content || ''
       
