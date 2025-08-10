@@ -190,6 +190,13 @@ export class GoogleSheetsService {
       return deals
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
+
+      // Check if it's an authentication error
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        console.error('🔑 Authentication failed - please check your Google service account credentials')
+      }
+
+      // Return empty array instead of throwing to allow app to continue
       return []
     }
   }
