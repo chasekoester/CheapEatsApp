@@ -15,8 +15,11 @@ export default function HomePage() {
     setError('')
 
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by this browser.')
+      console.warn('Geolocation not supported, redirecting to deals page without location')
+      setError('Geolocation is not supported by this browser. Showing deals from default location.')
       setIsLoading(false)
+      // Navigate to deals page anyway with default location
+      router.push('/deals')
       return
     }
 
