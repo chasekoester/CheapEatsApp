@@ -44,6 +44,12 @@ export class AIFastFoodGenerator {
 
 Create deals that customers would actually find at these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
 
+CRITICAL REQUIREMENTS:
+- Each deal must be COMPLETELY UNIQUE - no duplicate or similar deals
+- Maximum 2 deals per restaurant chain
+- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks)
+- Vary deal types significantly across restaurants
+
 Focus on these types of fast food deals:
 - App-exclusive promotions (very common)
 - BOGO offers (Buy One Get One)
