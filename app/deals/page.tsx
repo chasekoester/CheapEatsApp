@@ -269,7 +269,7 @@ export default function DealsPage() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           clearTimeout(manualTimeout)
-          console.log('✅ SUCCESS! Got user location:', position.coords.latitude, position.coords.longitude)
+          console.log('�� SUCCESS! Got user location:', position.coords.latitude, position.coords.longitude)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
@@ -422,11 +422,16 @@ export default function DealsPage() {
         setLoadingPhase('processing')
 
         const data = await response.json()
-        
+
         if (data.deals && Array.isArray(data.deals)) {
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
+
+          // If no deals but success response, clear error
+          if (data.deals.length === 0) {
+            setError(null)
+          }
         } else {
           throw new Error('Invalid data format received from API')
         }
