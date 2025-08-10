@@ -238,7 +238,6 @@ export default function DealsPage() {
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [sortBy, setSortBy] = useState<'distance' | 'price' | 'savings' | 'rating'>('distance')
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locationName, setLocationName] = useState<string>('')
