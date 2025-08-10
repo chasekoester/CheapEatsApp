@@ -763,24 +763,65 @@ export default function DealsPage() {
                   color: 'white',
                   fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
                   fontWeight: '800',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                  flex: 1
                 }}>
                   {deal.restaurantName || 'Restaurant'}
                 </div>
 
-                {/* Discount Badge */}
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  color: '#667eea',
-                  borderRadius: '20px',
-                  padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
-                  fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
-                  fontWeight: '900',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                  whiteSpace: 'nowrap',
-                  backdropFilter: 'blur(10px)'
-                }}>
-                  {discountPercent}% OFF
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {/* Favorite Button */}
+                  {session?.user && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleFavorite(deal.id)
+                      }}
+                      disabled={favoriteLoading[deal.id]}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: favoriteLoading[deal.id] ? 'not-allowed' : 'pointer',
+                        fontSize: '1.2rem',
+                        transition: 'all 0.3s ease',
+                        backdropFilter: 'blur(10px)',
+                        opacity: favoriteLoading[deal.id] ? 0.5 : 1
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!favoriteLoading[deal.id]) {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'
+                          e.currentTarget.style.transform = 'scale(1.1)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      {favoriteDeals.includes(deal.id) ? '❤️' : '🤍'}
+                    </button>
+                  )}
+
+                  {/* Discount Badge */}
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    color: '#667eea',
+                    borderRadius: '20px',
+                    padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
+                    fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
+                    fontWeight: '900',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                    whiteSpace: 'nowrap',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    {discountPercent}% OFF
+                  </div>
                 </div>
               </div>
 
