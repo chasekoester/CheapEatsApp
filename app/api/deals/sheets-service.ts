@@ -120,9 +120,24 @@ export class GoogleSheetsService {
     try {
       await this.sheet.loadHeaderRow()
       const rows = await this.sheet.getRows()
-      
+
+      console.log(`📊 Total rows in spreadsheet: ${rows.length}`)
+
+      // Debug: Check what status values we have
+      if (rows.length > 0) {
+        const statusValues = rows.slice(0, 5).map((row: any) => row.get('status'))
+        console.log(`🔍 First 5 status values:`, statusValues)
+      }
+
       const deals: SheetDeal[] = rows
-        .filter((row: any) => row.get('status') === 'active')
+        .filter((row: any) => {
+          const status = row.get('status')
+          const isActive = status === 'active'
+          if (!isActive && rows.indexOf(row) < 3) {
+            console.log(`🔍 Row ${rows.indexOf(row)} status: "${status}" (active: ${isActive})`)
+          }
+          return isActive
+        })
         .map((row: any) => ({
           id: row.get('id'),
           restaurantName: row.get('restaurantName'),
@@ -144,7 +159,7 @@ export class GoogleSheetsService {
           status: row.get('status') as 'active' | 'inactive'
         }))
 
-      console.log(`✅ Retrieved ${deals.length} active deals from Google Sheets`)
+      console.log(`✅ Retrieved ${deals.length} active deals from ${rows.length} total rows`)
       return deals
     } catch (error) {
       console.error('❌ Failed to get deals from Google Sheets:', error)
