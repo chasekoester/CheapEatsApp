@@ -10,6 +10,7 @@ export default function HomePage() {
   const router = useRouter()
 
   const handleLocationRequest = async () => {
+    console.log('🔘 Find Fast Food Deals button clicked!')
     setIsLoading(true)
     setError('')
 
