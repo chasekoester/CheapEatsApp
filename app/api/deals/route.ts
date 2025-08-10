@@ -67,10 +67,10 @@ export async function GET(request: Request) {
       if (sheetDeals.length === 0) {
         console.warn('⚠️ No deals found in spreadsheet')
         return NextResponse.json({
-          success: false,
-          error: 'No deals found in the spreadsheet. Please add deals to continue.',
+          success: true,
+          message: 'No deals found in the spreadsheet. Please add deals to continue.',
           deals: []
-        }, { status: 404 })
+        }, { status: 200 })
       }
 
       // Calculate distances for sheet deals and show ALL of them
