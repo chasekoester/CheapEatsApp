@@ -194,7 +194,7 @@ Find similar REAL deals that these chains actually offer. Keep descriptions unde
         verified: true,
         source: 'AI Generated - Fast Food Database',
         sourceType: 'ai_generated' as const,
-        sourceUrl: deal.sourceUrl || this.getRestaurantUrl(deal.restaurantName || ''),
+        sourceUrl: deal.sourceUrl || this.getRestaurantUrl(deal.restaurantName || '', deal.title || ''),
         scrapedAt: new Date().toISOString(),
         confidence: 95,
         imageUrl: this.getFoodImage(deal.restaurantName || '')
