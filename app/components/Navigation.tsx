@@ -33,7 +33,7 @@ export default function Navigation() {
           style={{
             textDecoration: 'none',
             fontSize: 'clamp(1.25rem, 5vw, 1.75rem)',
-            fontWeight: '800',
+            fontWeight: '700',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -55,7 +55,7 @@ export default function Navigation() {
             style={{
               textDecoration: 'none',
               fontSize: 'clamp(14px, 3vw, 16px)',
-              fontWeight: '600',
+              fontWeight: '500',
               padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
               borderRadius: '12px',
               transition: 'all 0.3s ease',
@@ -84,7 +84,7 @@ export default function Navigation() {
               textDecoration: 'none',
               color: '#6b7280',
               fontSize: 'clamp(14px, 3vw, 16px)',
-              fontWeight: '600',
+              fontWeight: '500',
               padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
               borderRadius: '12px',
               transition: 'all 0.3s ease',
@@ -119,7 +119,7 @@ export default function Navigation() {
                     textDecoration: 'none',
                     color: '#6b7280',
                     fontSize: 'clamp(14px, 3vw, 16px)',
-                    fontWeight: '600',
+                    fontWeight: '500',
                     padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
@@ -141,7 +141,7 @@ export default function Navigation() {
                 onClick={() => signOut()}
                 style={{
                   fontSize: 'clamp(14px, 3vw, 16px)',
-                  fontWeight: '600',
+                  fontWeight: '500',
                   padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
                   borderRadius: '12px',
                   transition: 'all 0.3s ease',
@@ -167,7 +167,7 @@ export default function Navigation() {
               onClick={() => signIn('google')}
               style={{
                 fontSize: 'clamp(14px, 3vw, 16px)',
-                fontWeight: '600',
+                fontWeight: '500',
                 padding: 'clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px)',
                 borderRadius: '12px',
                 transition: 'all 0.3s ease',
