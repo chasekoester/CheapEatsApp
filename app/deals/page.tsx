@@ -249,36 +249,44 @@ export default function DealsPage() {
   const [favoriteLoading, setFavoriteLoading] = useState<{ [dealId: string]: boolean }>({})
 
   // Function to get user's current location
-  const getCurrentLocation = async (): Promise<{ latitude: number; longitude: number }> => {
-    console.log('🗺️ Getting location...')
+  const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
+    return new Promise((resolve) => {
+      console.log('🗺️ Requesting user location...')
 
-    // Default NYC location
-    const defaultLocation = { latitude: 40.7128, longitude: -74.0060 }
-
-    if (!navigator.geolocation) {
-      console.log('❌ No geolocation support')
-      return defaultLocation
-    }
-
-    try {
-      console.log('📱 Requesting location...')
-
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 5000,
-          enableHighAccuracy: false
-        })
-      })
-
-      console.log('✅ Got location:', position.coords.latitude, position.coords.longitude)
-      return {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
+      if (!navigator.geolocation) {
+        console.warn('Geolocation not supported, using default location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
+        return
       }
-    } catch (error) {
-      console.log('⚠️ Location failed, using default')
-      return defaultLocation
-    }
+
+      // Set up a manual timeout in case the browser's timeout doesn't work
+      const manualTimeout = setTimeout(() => {
+        console.warn('Manual geolocation timeout, using default location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
+      }, 5000) // 5 second timeout
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          clearTimeout(manualTimeout)
+          console.log('✅ Got user location:', position.coords.latitude, position.coords.longitude)
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          })
+        },
+        (error) => {
+          clearTimeout(manualTimeout)
+          console.warn('Geolocation error:', error.message)
+          // Always resolve with default location instead of rejecting
+          resolve({ latitude: 40.7128, longitude: -74.0060 })
+        },
+        {
+          timeout: 4000,
+          enableHighAccuracy: false, // Faster with less accuracy
+          maximumAge: 300000 // 5 minutes cache
+        }
+      )
+    })
   }
 
   // Function to fetch user's favorite deals
@@ -356,28 +364,38 @@ export default function DealsPage() {
 
   // Load deals from API
   const loadDeals = async () => {
-    console.log('🚀 Starting loadDeals...')
-
-    setLoading(true)
-    setError(null)
-    setLoadingPhase('initial')
-    setLoadingProgress(15)
-
     try {
-      // Set NYC as default location
-      const defaultLocation = { latitude: 40.7128, longitude: -74.0060 }
-      setLocation(defaultLocation)
-      setLocationName('New York, NY')
-      setLoadingProgress(35)
+      setLoading(true)
+      setError(null)
+      setLoadingPhase('initial')
+      setLoadingProgress(10)
 
-      console.log('🏙️ Getting location name...')
+      // Check if user location is already in localStorage (from homepage)
+      let userLocation: { latitude: number; longitude: number }
+
+      try {
+        const storedLocation = localStorage.getItem('userLocation')
+        if (storedLocation) {
+          userLocation = JSON.parse(storedLocation)
+          console.log('📍 Using stored location:', userLocation)
+          setLoadingProgress(25)
+        } else {
+          // Get user location via geolocation
+          userLocation = await getCurrentLocation()
+        }
+      } catch (e) {
+        console.warn('Failed to read localStorage, getting fresh location')
+        userLocation = await getCurrentLocation()
+      }
+
+      setLocation(userLocation)
+      setLoadingProgress(25)
+
       // Get location name
       const locName = await getLocationName(userLocation.latitude, userLocation.longitude)
-      console.log('📍 Location name:', locName)
       setLocationName(locName)
       setLoadingProgress(40)
 
-      console.log('🤖 Starting AI deal generation phase...')
       setLoadingPhase('ai_generating')
       setLoadingProgress(50)
 
@@ -386,7 +404,6 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
-        console.log('📞 Fetching deals from API...')
         const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
           signal: controller.signal,
           headers: {
@@ -395,7 +412,6 @@ export default function DealsPage() {
         })
 
         clearTimeout(timeoutId)
-        console.log('📡 API response received, status:', response.status)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -405,18 +421,11 @@ export default function DealsPage() {
         setLoadingPhase('processing')
 
         const data = await response.json()
-        console.log('📋 Deals data received:', data.deals?.length, 'deals')
-
+        
         if (data.deals && Array.isArray(data.deals)) {
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
-
-          // Complete loading after a short delay
-          setTimeout(() => {
-            console.log('✅ Loading complete, hiding loader')
-            setLoading(false)
-          }, 800)
         } else {
           throw new Error('Invalid data format received from API')
         }
@@ -475,18 +484,13 @@ export default function DealsPage() {
         setDeals(fallbackDeals)
         setLoadingProgress(100)
         setLoadingPhase('complete')
-
-        // Complete loading with fallback
-        setTimeout(() => {
-          console.log('✅ Fallback loading complete')
-          setLoading(false)
-        }, 800)
       }
     } catch (error: any) {
-      console.error('💥 Fatal error in loadDeals:', error)
+      console.error('Error loading deals:', error)
       setError('Failed to load deals. Please try again.')
       setLoadingProgress(100)
       setLoadingPhase('complete')
+    } finally {
       setLoading(false)
     }
   }
@@ -611,10 +615,60 @@ export default function DealsPage() {
           <div style={{
             fontSize: '0.9rem',
             color: '#9ca3af',
-            fontWeight: '500'
+            fontWeight: '500',
+            marginBottom: '1.5rem'
           }}>
             {loadingProgress}% Complete
           </div>
+
+          {/* Skip Location Button - show after 3 seconds */}
+          {loadingPhase === 'initial' && (
+            <button
+              onClick={async () => {
+                console.log('🚀 Skip location button clicked, loading deals with default location')
+                setLocation({ latitude: 40.7128, longitude: -74.0060 })
+                setLocationName('New York, NY')
+                setLoadingProgress(50)
+                setLoadingPhase('ai_generating')
+
+                // Load deals without user location
+                try {
+                  const response = await fetch('/api/deals?count=200')
+                  const data = await response.json()
+
+                  if (data.deals && Array.isArray(data.deals)) {
+                    setDeals(data.deals)
+                    setLoadingProgress(100)
+                    setLoadingPhase('complete')
+                    setTimeout(() => setLoading(false), 500)
+                  }
+                } catch (error) {
+                  console.error('Failed to load deals:', error)
+                  setError('Failed to load deals. Please try again.')
+                }
+              }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                color: '#374151',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              Skip Location - Browse All Deals
+            </button>
+          )}
         </div>
 
         <style jsx>{`
