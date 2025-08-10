@@ -737,11 +737,31 @@ Find similar REAL deals that these chains actually offer. Keep descriptions unde
   }
 
   /**
-   * Get restaurant's official deals URL
+   * Get restaurant's official deals URL - prioritize app downloads for app-exclusive deals
    */
-  private getRestaurantUrl(restaurantName: string): string {
+  private getRestaurantUrl(restaurantName: string, title?: string): string {
     const name = restaurantName.toLowerCase()
+    const dealTitle = (title || '').toLowerCase()
 
+    // For app-exclusive deals, link to app download pages
+    if (dealTitle.includes('app') || dealTitle.includes('mobile')) {
+      if (name.includes('mcdonald')) return 'https://www.mcdonalds.com/us/en-us/download-app.html'
+      if (name.includes('burger') && name.includes('king')) return 'https://www.bk.com/mobile-app'
+      if (name.includes('taco') && name.includes('bell')) return 'https://www.tacobell.com/mobile-app'
+      if (name.includes('subway')) return 'https://www.subway.com/en-US/mobile-app'
+      if (name.includes('starbucks')) return 'https://www.starbucks.com/rewards/starcode'
+      if (name.includes('chipotle')) return 'https://www.chipotle.com/order'
+    }
+
+    // For rewards/loyalty deals, link to sign-up pages
+    if (dealTitle.includes('reward') || dealTitle.includes('loyalty') || dealTitle.includes('member')) {
+      if (name.includes('starbucks')) return 'https://www.starbucks.com/rewards'
+      if (name.includes('dunkin')) return 'https://www.dunkindonuts.com/en/dd-perks'
+      if (name.includes('chipotle')) return 'https://www.chipotle.com/rewards'
+      if (name.includes('subway')) return 'https://www.subway.com/en-US/subwayrefresh'
+    }
+
+    // Default to specific deals pages
     if (name.includes('mcdonald')) return 'https://www.mcdonalds.com/us/en-us/deals.html'
     if (name.includes('burger') && name.includes('king')) return 'https://www.bk.com/menu/offers'
     if (name.includes('taco') && name.includes('bell')) return 'https://www.tacobell.com/deals'
