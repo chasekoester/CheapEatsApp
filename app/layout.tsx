@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <AuthProvider children={children}>
+        <AuthProvider>
           <AutoDealGenerator />
           <Navigation />
           <main style={{ minHeight: '100vh' }}>
