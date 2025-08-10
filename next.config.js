@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Production optimizations
-  output: 'export',
+  // Production optimizations - removed export for auth support
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
-  distDir: 'out',
 
   // Experimental features
   experimental: {
