@@ -232,6 +232,28 @@ export default function HomePage() {
               }}>
                 {error}
               </p>
+              <button
+                onClick={() => {
+                  console.log('🔘 Browse Deals (fallback) button clicked!')
+                  router.push('/deals')
+                }}
+                style={{
+                  marginTop: '1rem',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '12px 24px',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'block',
+                  margin: '1rem auto 0'
+                }}
+              >
+                Browse Deals Without Location
+              </button>
             </div>
           )}
         </div>
