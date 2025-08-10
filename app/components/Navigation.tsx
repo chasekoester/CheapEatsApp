@@ -47,7 +47,7 @@ export default function Navigation() {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 'clamp(0.75rem, 4vw, 2rem)'
+          gap: 'clamp(1rem, 5vw, 2.5rem)'
         }}>
           <Link 
             href="/deals" 
