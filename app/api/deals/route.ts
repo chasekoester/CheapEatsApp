@@ -116,63 +116,53 @@ export async function GET(request: Request) {
       console.log(`📍 Using default location: ${defaultCity}`)
     }
 
-    // Try to get deals from Google Sheets first
+    // FORCE Google Sheets usage - no AI fallback
     const sheetsService = new GoogleSheetsService()
     let deals: any[] = []
-    let dataSource = 'Sheet Stored'
+    let dataSource = 'Google Spreadsheet'
 
-    if (await sheetsService.isConfigured()) {
-      console.log('📊 Fetching deals from Google Sheets...')
-      try {
-        const sheetDeals = await sheetsService.getActiveDeals()
+    console.log('📊 Reading ALL deals from Google Spreadsheet (Sheet 1)...')
+    try {
+      const sheetDeals = await sheetsService.getActiveDeals()
+      console.log(`📋 Retrieved ${sheetDeals.length} deals from spreadsheet`)
 
-        if (sheetDeals.length > 0) {
-          // Calculate distances for sheet deals and sort by proximity
-          const dealsWithDistance = sheetDeals.map(deal => ({
-            ...deal,
-            distance: sheetsService.calculateDistance(
-              location.latitude,
-              location.longitude,
-              deal.latitude,
-              deal.longitude
-            ),
-            // Convert to the expected format
-            sourceType: 'user_submitted' as const,
-            scrapedAt: new Date().toISOString(),
-            confidence: 95,
-            imageUrl: '/api/placeholder/400/300'
-          }))
+      if (sheetDeals.length > 0) {
+        // Calculate distances for sheet deals and show ALL of them
+        const dealsWithDistance = sheetDeals.map(deal => ({
+          ...deal,
+          distance: sheetsService.calculateDistance(
+            location.latitude,
+            location.longitude,
+            deal.latitude,
+            deal.longitude
+          ),
+          // Convert to the expected format
+          sourceType: 'user_submitted' as const,
+          scrapedAt: new Date().toISOString(),
+          confidence: 100,
+          imageUrl: '/api/placeholder/400/300'
+        }))
 
-          // For spreadsheet deals, show ALL deals (don't filter by radius)
-          // These are curated real deals that should always be shown
-          deals = dealsWithDistance
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, requestedCount)
+        // Show ALL spreadsheet deals - no filtering by distance or count
+        deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
 
-          console.log(`✅ Using ${deals.length} deals from Google Sheets (all spreadsheet deals shown)`)
-        }
-      } catch (error) {
-        console.error('❌ Failed to fetch from Google Sheets:', error)
+        console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
+      } else {
+        console.log('⚠️ No deals found in spreadsheet - please check Sheet 1')
+        return NextResponse.json({
+          success: false,
+          error: 'No deals found in spreadsheet. Please check that Sheet 1 has data.',
+          deals: [],
+          spreadsheetConfigured: await sheetsService.isConfigured()
+        }, { status: 404 })
       }
-    }
-
-    // Temporarily bypass spreadsheet issues and generate many deals directly
-    if (deals.length === 0) {
-      console.log('🚨 Bypassing spreadsheet issues - generating large set of AI deals directly')
-      try {
-        const aiGenerator = new AIFastFoodGenerator()
-
-        // Generate many deals to ensure user sees all possible deals
-        deals = await aiGenerator.generateFastFoodDeals(location, requestedCount)
-        dataSource = 'AI Generated (Bypass Mode)'
-
-        console.log(`✅ Generated ${deals.length} deals in bypass mode`)
-      } catch (aiError) {
-        console.error('AI generation failed:', aiError)
-        // Use hardcoded fallback deals
-        deals = getHardcodedFallbackDeals(location)
-        dataSource = 'Fallback Static'
-      }
+    } catch (error) {
+      console.error('❌ Failed to read from Google Sheets:', error)
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to read from Google Spreadsheet: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        deals: []
+      }, { status: 500 })
     }
 
     if (deals.length === 0) {
