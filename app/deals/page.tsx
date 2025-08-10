@@ -653,7 +653,7 @@ export default function DealsPage() {
       }}>
         <h1 style={{
           fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
-          fontWeight: '800',
+          fontWeight: '700',
           marginBottom: '1.5rem',
           color: 'white',
           letterSpacing: '-0.02em',
@@ -763,7 +763,7 @@ export default function DealsPage() {
                 <div style={{
                   color: 'white',
                   fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-                  fontWeight: '800',
+                  fontWeight: '600',
                   textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                   flex: 1
                 }}>
@@ -816,7 +816,7 @@ export default function DealsPage() {
                     borderRadius: '20px',
                     padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
                     fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
-                    fontWeight: '900',
+                    fontWeight: '700',
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                     whiteSpace: 'nowrap',
                     backdropFilter: 'blur(10px)'
@@ -859,7 +859,7 @@ export default function DealsPage() {
                 {/* Deal Title */}
                 <h3 style={{
                   fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                  fontWeight: '800',
+                  fontWeight: '600',
                   color: '#1e293b',
                   marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
                   lineHeight: '1.3',
@@ -889,7 +889,7 @@ export default function DealsPage() {
                 }}>
                   <div style={{
                     fontSize: 'clamp(1.75rem, 6vw, 2.25rem)',
-                    fontWeight: '900',
+                    fontWeight: '700',
                     color: '#10b981',
                     lineHeight: '1'
                   }}>
@@ -999,7 +999,7 @@ export default function DealsPage() {
                       getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    🧭 Get Directions
+                    �� Get Directions
                   </button>
                 </div>
               </div>
