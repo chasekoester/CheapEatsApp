@@ -233,6 +233,7 @@ const getRestaurantBrandColor = (restaurantName: string) => {
 }
 
 export default function DealsPage() {
+  const { data: session } = useSession()
   const [deals, setDeals] = useState<(Deal & { distance: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<'initial' | 'ai_generating' | 'processing' | 'complete'>('initial')
@@ -243,6 +244,8 @@ export default function DealsPage() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locationName, setLocationName] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
+  const [favoriteDeals, setFavoriteDeals] = useState<string[]>([])
+  const [favoriteLoading, setFavoriteLoading] = useState<{ [dealId: string]: boolean }>({})
 
   // Function to get user's current location
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
