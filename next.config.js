@@ -34,7 +34,6 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
-        crypto: false,
         stream: false,
         url: false,
         zlib: false,
