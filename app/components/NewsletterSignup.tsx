@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
@@ -67,7 +67,7 @@ export default function NewsletterSignup() {
 
       <h2 style={{
         fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-        fontWeight: '800',
+        fontWeight: '600',
         color: 'white',
         marginBottom: '1rem',
         letterSpacing: '-0.01em'

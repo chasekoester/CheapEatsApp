@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { AIFastFoodGenerator } from './ai-fast-food-generator'
 import { GoogleSheetsService } from './sheets-service'
 
 export const dynamic = 'force-dynamic'
@@ -20,77 +19,6 @@ const locationCoordinates: Record<string, { latitude: number; longitude: number 
   'Austin': { latitude: 30.2672, longitude: -97.7431 }
 }
 
-// Hardcoded fallback deals that don't require any external APIs
-function getHardcodedFallbackDeals(location: { latitude: number; longitude: number }) {
-  return [
-    {
-      id: "static-1",
-      title: "Big Mac Meal Deal",
-      description: "Big Mac, Medium Fries, Medium Drink - Mobile App Only",
-      originalPrice: "$12.99",
-      dealPrice: "$8.99",
-      discountPercent: 31,
-      restaurantName: "McDonald's",
-      category: "Burgers",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://mcdonalds.com/deals",
-      address: "Near you",
-      distance: 0.5,
-      qualityScore: 85,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude + 0.01,
-      longitude: location.longitude + 0.01
-    },
-    {
-      id: "static-2",
-      title: "Whopper Wednesday",
-      description: "Flame-grilled Whopper for just $3 every Wednesday",
-      originalPrice: "$7.99",
-      dealPrice: "$3.00",
-      discountPercent: 62,
-      restaurantName: "Burger King",
-      category: "Burgers",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://bk.com/offers",
-      address: "Downtown",
-      distance: 0.8,
-      qualityScore: 80,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude + 0.02,
-      longitude: location.longitude - 0.01
-    },
-    {
-      id: "static-3",
-      title: "Crunchwrap Supreme Deal",
-      description: "Crunchwrap Supreme + drink for $4.99 via app",
-      originalPrice: "$7.49",
-      dealPrice: "$4.99",
-      discountPercent: 33,
-      restaurantName: "Taco Bell",
-      category: "Mexican",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://tacobell.com/deals",
-      address: "Main Street",
-      distance: 1.2,
-      qualityScore: 88,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude - 0.01,
-      longitude: location.longitude + 0.02
-    }
-  ]
-}
 
 export async function GET(request: Request) {
   try {
@@ -116,48 +44,59 @@ export async function GET(request: Request) {
       console.log(`📍 Using default location: ${defaultCity}`)
     }
 
-    // FORCE Google Sheets usage - no AI fallback
+    // ONLY use Google Sheets - no fallbacks
     const sheetsService = new GoogleSheetsService()
     let deals: any[] = []
     let dataSource = 'Google Spreadsheet'
 
-    console.log('📊 Reading ALL deals from Google Spreadsheet (Sheet 1)...')
+    console.log('📊 Reading ONLY from Google Spreadsheet...')
+
+    if (!(await sheetsService.isConfigured())) {
+      console.error('❌ Google Sheets not configured!')
+      return NextResponse.json({
+        success: false,
+        error: 'Google Sheets is not configured. Please check environment variables.',
+        deals: []
+      }, { status: 500 })
+    }
+
     try {
       const sheetDeals = await sheetsService.getActiveDeals()
       console.log(`📋 Retrieved ${sheetDeals.length} deals from spreadsheet`)
 
-      if (sheetDeals.length > 0) {
-        // Calculate distances for sheet deals and show ALL of them
-        const dealsWithDistance = sheetDeals.map(deal => ({
-          ...deal,
-          distance: sheetsService.calculateDistance(
-            location.latitude,
-            location.longitude,
-            deal.latitude,
-            deal.longitude
-          ),
-          // Convert to the expected format
-          sourceType: 'user_submitted' as const,
-          scrapedAt: new Date().toISOString(),
-          confidence: 100,
-          imageUrl: '/api/placeholder/400/300'
-        }))
-
-        // Show ALL spreadsheet deals - no filtering by distance or count
-        deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
-
-        console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
-      } else {
-        console.log('⚠️ No deals found in spreadsheet - please check Sheet 1')
+      if (sheetDeals.length === 0) {
+        console.warn('⚠️ No deals found in spreadsheet')
         return NextResponse.json({
-          success: false,
-          error: 'No deals found in spreadsheet. Please check that Sheet 1 has data.',
-          deals: [],
-          spreadsheetConfigured: await sheetsService.isConfigured()
-        }, { status: 404 })
+          success: true,
+          message: 'No deals currently available. Please check back later.',
+          deals: []
+        }, { status: 200 })
       }
+
+      // Calculate distances for sheet deals and show ALL of them
+      const dealsWithDistance = sheetDeals.map(deal => ({
+        ...deal,
+        distance: sheetsService.calculateDistance(
+          location.latitude,
+          location.longitude,
+          deal.latitude,
+          deal.longitude
+        ),
+        // Convert to the expected format
+        sourceType: 'user_submitted' as const,
+        scrapedAt: new Date().toISOString(),
+        confidence: 100,
+        imageUrl: '/api/placeholder/400/300'
+      }))
+
+      // Show ALL spreadsheet deals - no filtering by distance or count
+      deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
+      console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
+
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
+
+      // Return proper error since Google Sheets should be working now
       return NextResponse.json({
         success: false,
         error: 'Failed to read from Google Spreadsheet: ' + (error instanceof Error ? error.message : 'Unknown error'),
@@ -166,12 +105,12 @@ export async function GET(request: Request) {
     }
 
     if (deals.length === 0) {
-      console.log('❌ No deals found')
+      console.log('📝 No deals available')
       return NextResponse.json({
-        success: false,
-        error: 'Unable to find fast food deals at this time. Please try again later.',
+        success: true,
+        message: 'No deals currently available. Please check back later.',
         deals: []
-      }, { status: 500 })
+      }, { status: 200 })
     }
 
     // Sort deals by distance and quality

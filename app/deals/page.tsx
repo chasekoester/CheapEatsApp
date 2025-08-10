@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 
 // Deal interface to match the actual API structure
@@ -250,25 +250,42 @@ export default function DealsPage() {
 
   // Function to get user's current location
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      console.log('🗺️ Requesting user location...')
+
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser.'))
+        console.warn('Geolocation not supported, using default location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
         return
       }
 
+      // Set up a manual timeout in case the browser's timeout doesn't work
+      const manualTimeout = setTimeout(() => {
+        console.warn('⏰ Manual geolocation timeout (2s), using NYC location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
+      }, 2000) // 2 second timeout - very aggressive
+
+      console.log('📡 Calling navigator.geolocation.getCurrentPosition...')
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(manualTimeout)
+          console.log('�� SUCCESS! Got user location:', position.coords.latitude, position.coords.longitude)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           })
         },
         (error) => {
-          console.warn('Geolocation error:', error)
-          // Default to a central location (e.g., NYC) if geolocation fails
+          clearTimeout(manualTimeout)
+          console.warn('❌ Geolocation error code:', error.code, 'message:', error.message)
+          // Always resolve with default location instead of rejecting
           resolve({ latitude: 40.7128, longitude: -74.0060 })
         },
-        { timeout: 10000, enableHighAccuracy: true }
+        {
+          timeout: 1500, // Very short timeout
+          enableHighAccuracy: false, // Faster with less accuracy
+          maximumAge: 600000 // 10 minutes cache
+        }
       )
     })
   }
@@ -354,8 +371,24 @@ export default function DealsPage() {
       setLoadingPhase('initial')
       setLoadingProgress(10)
 
-      // Get user location
-      const userLocation = await getCurrentLocation()
+      // Check if user location is already in localStorage (from homepage)
+      let userLocation: { latitude: number; longitude: number }
+
+      try {
+        const storedLocation = localStorage.getItem('userLocation')
+        if (storedLocation) {
+          userLocation = JSON.parse(storedLocation)
+          console.log('📍 Using stored location:', userLocation)
+          setLoadingProgress(25)
+        } else {
+          // Get user location via geolocation
+          userLocation = await getCurrentLocation()
+        }
+      } catch (e) {
+        console.warn('Failed to read localStorage, getting fresh location')
+        userLocation = await getCurrentLocation()
+      }
+
       setLocation(userLocation)
       setLoadingProgress(25)
 
@@ -372,12 +405,17 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
-        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
+        const cacheBuster = Date.now()
+        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200&_t=${cacheBuster}`, {
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
           },
         })
+
+        console.log('📊 API Response status:', response.status)
+        console.log('📊 API Response headers:', Object.fromEntries(response.headers.entries()))
 
         clearTimeout(timeoutId)
 
@@ -389,11 +427,24 @@ export default function DealsPage() {
         setLoadingPhase('processing')
 
         const data = await response.json()
-        
+
+        console.log('📊 API Response data:', {
+          success: data.success,
+          dealsCount: data.deals?.length || 0,
+          source: data.source,
+          firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
+        })
+
         if (data.deals && Array.isArray(data.deals)) {
+          console.log('✅ Setting deals:', data.deals.length, 'deals from', data.source)
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
+
+          // If no deals but success response, clear error
+          if (data.deals.length === 0) {
+            setError(null)
+          }
         } else {
           throw new Error('Invalid data format received from API')
         }
@@ -405,53 +456,8 @@ export default function DealsPage() {
           console.warn('API request failed:', fetchError)
         }
         
-        // Use fallback deals on any error
-        const fallbackDeals = [
-          {
-            id: "fallback-1",
-            title: "Big Mac Meal Deal",
-            description: "Big Mac, Medium Fries, Medium Drink",
-            originalPrice: "$12.99",
-            dealPrice: "$8.99",
-            discountPercent: 31,
-            restaurantName: "McDonald's",
-            category: "Burgers",
-            expirationDate: "2024-12-31",
-            imageUrl: "/api/placeholder/400/300",
-            sourceUrl: "https://mcdonalds.com",
-            address: "Near you",
-            distance: 0.5,
-            qualityScore: 85,
-            verified: true,
-            source: "Fallback",
-            scrapedAt: new Date().toISOString(),
-            confidence: 100
-          },
-          {
-            id: "fallback-2",
-            title: "Whopper Wednesday",
-            description: "Flame-grilled Whopper with special sauce",
-            originalPrice: "$9.99",
-            dealPrice: "$5.99",
-            discountPercent: 40,
-            restaurantName: "Burger King",
-            category: "Burgers",
-            expirationDate: "2024-12-31",
-            imageUrl: "/api/placeholder/400/300",
-            sourceUrl: "https://burgerking.com",
-            address: "Downtown",
-            distance: 0.8,
-            qualityScore: 80,
-            verified: true,
-            source: "Fallback",
-            scrapedAt: new Date().toISOString(),
-            confidence: 100
-          }
-        ]
-
-        setDeals(fallbackDeals)
-        setLoadingProgress(100)
-        setLoadingPhase('complete')
+        // No fallback deals - throw error to show proper error message
+        throw fetchError
       }
     } catch (error: any) {
       console.error('Error loading deals:', error)
@@ -583,10 +589,69 @@ export default function DealsPage() {
           <div style={{
             fontSize: '0.9rem',
             color: '#9ca3af',
-            fontWeight: '500'
+            fontWeight: '500',
+            marginBottom: '1.5rem'
           }}>
             {loadingProgress}% Complete
           </div>
+
+          {/* Skip Location Button - show after 3 seconds */}
+          {loadingPhase === 'initial' && (
+            <button
+              onClick={async () => {
+                console.log('🚀 Skip location button clicked, loading deals with default location')
+                setLocation({ latitude: 40.7128, longitude: -74.0060 })
+                setLocationName('New York, NY')
+                setLoadingProgress(50)
+                setLoadingPhase('ai_generating')
+
+                // Load deals without user location
+                try {
+                  const cacheBuster = Date.now()
+                  const response = await fetch(`/api/deals?count=200&_t=${cacheBuster}`)
+                  const data = await response.json()
+
+                  console.log('📊 Skip location API response:', {
+                    success: data.success,
+                    dealsCount: data.deals?.length || 0,
+                    source: data.source,
+                    firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
+                  })
+
+                  if (data.deals && Array.isArray(data.deals)) {
+                    console.log('✅ Skip location setting deals:', data.deals.length, 'deals from', data.source)
+                    setDeals(data.deals)
+                    setLoadingProgress(100)
+                    setLoadingPhase('complete')
+                    setTimeout(() => setLoading(false), 500)
+                  }
+                } catch (error) {
+                  console.error('Failed to load deals:', error)
+                  setError('Failed to load deals. Please try again.')
+                }
+              }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                color: '#374151',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              Skip Location - Browse All Deals
+            </button>
+          )}
         </div>
 
         <style jsx>{`
@@ -653,7 +718,7 @@ export default function DealsPage() {
       }}>
         <h1 style={{
           fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
-          fontWeight: '800',
+          fontWeight: '700',
           marginBottom: '1.5rem',
           color: 'white',
           letterSpacing: '-0.02em',
@@ -763,7 +828,7 @@ export default function DealsPage() {
                 <div style={{
                   color: 'white',
                   fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
-                  fontWeight: '800',
+                  fontWeight: '600',
                   textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                   flex: 1
                 }}>
@@ -816,7 +881,7 @@ export default function DealsPage() {
                     borderRadius: '20px',
                     padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
                     fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
-                    fontWeight: '900',
+                    fontWeight: '700',
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                     whiteSpace: 'nowrap',
                     backdropFilter: 'blur(10px)'
@@ -859,7 +924,7 @@ export default function DealsPage() {
                 {/* Deal Title */}
                 <h3 style={{
                   fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                  fontWeight: '800',
+                  fontWeight: '600',
                   color: '#1e293b',
                   marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
                   lineHeight: '1.3',
@@ -889,7 +954,7 @@ export default function DealsPage() {
                 }}>
                   <div style={{
                     fontSize: 'clamp(1.75rem, 6vw, 2.25rem)',
-                    fontWeight: '900',
+                    fontWeight: '700',
                     color: '#10b981',
                     lineHeight: '1'
                   }}>
@@ -996,10 +1061,10 @@ export default function DealsPage() {
                     }}
                     onClick={(e) => {
                       e.stopPropagation()
-                      getDirectionsToRestaurant(deal.restaurantName, location)
+                      getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    🧭 Get Directions
+                    �� Get Directions
                   </button>
                 </div>
               </div>
@@ -1135,7 +1200,7 @@ export default function DealsPage() {
               )}
 
               <button
-                onClick={() => getDirectionsToRestaurant(selectedDeal.restaurantName, location)}
+                onClick={() => getDirectionsToRestaurant(selectedDeal.restaurantName, location || undefined)}
                 style={{
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',

@@ -28,38 +28,63 @@ export class GoogleSheetsService {
   private sheet: any = null
 
   constructor() {
-    // Initialize with environment variables
-    if (process.env.GOOGLE_SHEETS_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-      this.initializeSheet()
-    }
+    // Don't auto-initialize - let each method call initialize as needed
   }
 
   private async initializeSheet() {
     try {
+      // Get and format the private key properly
+      let privateKey = process.env.GOOGLE_PRIVATE_KEY
+      if (privateKey) {
+        // Replace escaped newlines with actual newlines
+        privateKey = privateKey.replace(/\\n/g, '\n')
+
+        // Remove any existing headers/footers and format properly
+        privateKey = privateKey.replace(/-----BEGIN PRIVATE KEY-----/g, '')
+        privateKey = privateKey.replace(/-----END PRIVATE KEY-----/g, '')
+        privateKey = privateKey.replace(/\s/g, '')
+
+        // Rebuild the key with proper formatting
+        const keyLines = []
+        for (let i = 0; i < privateKey.length; i += 64) {
+          keyLines.push(privateKey.substring(i, i + 64))
+        }
+
+        privateKey = `-----BEGIN PRIVATE KEY-----\n${keyLines.join('\n')}\n-----END PRIVATE KEY-----`
+
+        console.log('🔑 Private key formatted with', keyLines.length, 'lines')
+      }
+
       // Create JWT auth
       const serviceAccountAuth = new JWT({
         email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        key: privateKey,
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
       })
+
+      console.log('🔑 JWT created with email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL)
+      console.log('📋 Using spreadsheet ID:', process.env.GOOGLE_SHEETS_ID)
 
       // Initialize the sheet
       this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_ID!, serviceAccountAuth)
       await this.doc.loadInfo()
-      
-      // Get or create the deals sheet
-      this.sheet = this.doc.sheetsByIndex[0] || await this.doc.addSheet({
-        title: 'Fast Food Deals',
-        headerValues: [
-          'id', 'restaurantName', 'title', 'description', 'originalPrice', 'dealPrice',
-          'discountPercent', 'category', 'expirationDate', 'latitude', 'longitude',
-          'address', 'qualityScore', 'verified', 'source', 'sourceUrl', 'dateAdded', 'status'
-        ]
-      })
+
+      // Get the first sheet (don't try to create one)
+      this.sheet = this.doc.sheetsByIndex[0]
+
+      if (!this.sheet) {
+        throw new Error('No sheets found in the spreadsheet. Please add at least one sheet.')
+      }
 
       console.log('✅ Google Sheets initialized successfully')
     } catch (error) {
       console.error('❌ Failed to initialize Google Sheets:', error)
+
+      // Check if it's an authentication error
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        console.error('🔑 Google Sheets authentication failed - check private key format and service account email')
+      }
+
       throw error
     }
   }
@@ -172,6 +197,13 @@ export class GoogleSheetsService {
       return deals
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
+
+      // Check if it's an authentication error
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        console.error('🔑 Authentication failed - please check your Google service account credentials')
+      }
+
+      // Return empty array instead of throwing to allow app to continue
       return []
     }
   }

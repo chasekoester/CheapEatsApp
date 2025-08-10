@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import NewsletterSignup from './components/NewsletterSignup'
 
@@ -10,12 +10,16 @@ export default function HomePage() {
   const router = useRouter()
 
   const handleLocationRequest = async () => {
+    console.log('🔘 Find Fast Food Deals button clicked!')
     setIsLoading(true)
     setError('')
 
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by this browser.')
+      console.warn('Geolocation not supported, redirecting to deals page without location')
+      setError('Geolocation is not supported by this browser. Showing deals from default location.')
       setIsLoading(false)
+      // Navigate to deals page anyway with default location
+      router.push('/deals')
       return
     }
 
@@ -148,7 +152,7 @@ export default function HomePage() {
               padding: 'clamp(16px, 5vw, 20px) clamp(32px, 8vw, 48px)',
               color: isLoading ? 'rgba(255, 255, 255, 0.7)' : '#1f2937',
               fontSize: 'clamp(16px, 4vw, 18px)',
-              fontWeight: '800',
+              fontWeight: '600',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
               boxShadow: isLoading
@@ -200,6 +204,38 @@ export default function HomePage() {
             )}
           </button>
 
+          {/* Alternative access link */}
+          <div style={{ marginTop: '1.5rem' }}>
+            <button
+              onClick={() => {
+                console.log('🔘 Skip Location / Browse All Deals clicked!')
+                router.push('/deals')
+              }}
+              style={{
+                background: 'transparent',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+              }}
+            >
+              Skip Location - Browse All Deals
+            </button>
+          </div>
+
           {error && (
             <div style={{
               marginTop: '2rem',
@@ -228,6 +264,28 @@ export default function HomePage() {
               }}>
                 {error}
               </p>
+              <button
+                onClick={() => {
+                  console.log('🔘 Browse Deals (fallback) button clicked!')
+                  router.push('/deals')
+                }}
+                style={{
+                  marginTop: '1rem',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '12px 24px',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'block',
+                  margin: '1rem auto 0'
+                }}
+              >
+                Browse Deals Without Location
+              </button>
             </div>
           )}
         </div>
@@ -243,7 +301,7 @@ export default function HomePage() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h2 style={{
             fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
-            fontWeight: '800',
+            fontWeight: '600',
             marginBottom: '1rem',
             color: '#1f2937',
             textAlign: 'center',
@@ -282,13 +340,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 1
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -318,13 +376,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 2
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -354,13 +412,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 3
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -395,7 +453,7 @@ export default function HomePage() {
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
           <h3 style={{
             fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-            fontWeight: '800',
+            fontWeight: '600',
             marginBottom: '3rem',
             color: 'white'
           }}>
@@ -410,7 +468,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#fbbf24',
                 marginBottom: '0.5rem'
               }}>
@@ -427,7 +485,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#10b981',
                 marginBottom: '0.5rem'
               }}>
@@ -444,7 +502,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#8b5cf6',
                 marginBottom: '0.5rem'
               }}>
@@ -461,7 +519,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#ef4444',
                 marginBottom: '0.5rem'
               }}>
