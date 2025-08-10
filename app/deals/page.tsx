@@ -250,25 +250,41 @@ export default function DealsPage() {
 
   // Function to get user's current location
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      console.log('🗺️ Requesting user location...')
+
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser.'))
+        console.warn('Geolocation not supported, using default location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
         return
       }
 
+      // Set up a manual timeout in case the browser's timeout doesn't work
+      const manualTimeout = setTimeout(() => {
+        console.warn('Manual geolocation timeout, using default location')
+        resolve({ latitude: 40.7128, longitude: -74.0060 })
+      }, 5000) // 5 second timeout
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(manualTimeout)
+          console.log('✅ Got user location:', position.coords.latitude, position.coords.longitude)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           })
         },
         (error) => {
-          console.warn('Geolocation error:', error)
-          // Default to a central location (e.g., NYC) if geolocation fails
+          clearTimeout(manualTimeout)
+          console.warn('Geolocation error:', error.message)
+          // Always resolve with default location instead of rejecting
           resolve({ latitude: 40.7128, longitude: -74.0060 })
         },
-        { timeout: 10000, enableHighAccuracy: true }
+        {
+          timeout: 4000,
+          enableHighAccuracy: false, // Faster with less accuracy
+          maximumAge: 300000 // 5 minutes cache
+        }
       )
     })
   }
