@@ -370,8 +370,24 @@ export default function DealsPage() {
       setLoadingPhase('initial')
       setLoadingProgress(10)
 
-      // Get user location
-      const userLocation = await getCurrentLocation()
+      // Check if user location is already in localStorage (from homepage)
+      let userLocation: { latitude: number; longitude: number }
+
+      try {
+        const storedLocation = localStorage.getItem('userLocation')
+        if (storedLocation) {
+          userLocation = JSON.parse(storedLocation)
+          console.log('📍 Using stored location:', userLocation)
+          setLoadingProgress(25)
+        } else {
+          // Get user location via geolocation
+          userLocation = await getCurrentLocation()
+        }
+      } catch (e) {
+        console.warn('Failed to read localStorage, getting fresh location')
+        userLocation = await getCurrentLocation()
+      }
+
       setLocation(userLocation)
       setLoadingProgress(25)
 
