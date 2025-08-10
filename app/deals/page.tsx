@@ -356,21 +356,26 @@ export default function DealsPage() {
 
   // Load deals from API
   const loadDeals = async () => {
-    console.log('🚀 Starting loadDeals function...')
+    console.log('🚀 STARTING loadDeals function...')
+
+    setLoading(true)
+    setError(null)
+    setLoadingPhase('initial')
+    setLoadingProgress(10)
+
+    console.log('📊 Progress set to 10%')
 
     try {
-      setLoading(true)
-      setError(null)
-      setLoadingPhase('initial')
-      setLoadingProgress(5)
-
       console.log('🗺️ Getting user location...')
+      setLoadingProgress(20)
+
       // Get user location
       const userLocation = await getCurrentLocation()
       console.log('📍 Location obtained:', userLocation)
 
       setLocation(userLocation)
-      setLoadingProgress(30)
+      setLoadingProgress(40)
+      console.log('📊 Progress set to 40%')
 
       console.log('🏙️ Getting location name...')
       // Get location name
