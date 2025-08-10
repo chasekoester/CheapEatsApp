@@ -181,7 +181,13 @@ Keep descriptions under 150 characters and make each deal unique and realistic.`
       })
     )
 
-    return processedDeals.filter(deal => deal.restaurantName && deal.title) // Remove any invalid deals
+    // Remove invalid deals and duplicates
+    const validDeals = processedDeals.filter(deal => deal.restaurantName && deal.title)
+
+    // Deduplicate deals by restaurant + similar title
+    const deduplicatedDeals = this.deduplicateDeals(validDeals)
+
+    return deduplicatedDeals
   }
 
   /**
