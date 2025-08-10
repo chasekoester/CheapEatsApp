@@ -1,108 +1,176 @@
-# CheapEats - Fast Food Deals Finder
+# 🍔 CheapEats - Fast Food Deals Finder
 
-A Next.js application that helps users find fast food deals near their location using AI-generated deals and Google Sheets integration.
+A modern Next.js application to find verified fast food deals near you using location-based search.
+
+## ✨ Features
+
+- 📍 **Location-Based Deal Discovery** - Find deals near your current location
+- 🔍 **Real Deal Verification** - All deals sourced from official restaurant sources
+- 🎯 **Smart Filtering** - Filter by distance, price, restaurant, and deal type
+- 📱 **Mobile-First Design** - Optimized for mobile devices
+- 🗺️ **Google Maps Integration** - Get directions to restaurants
+- 📊 **Google Sheets Backend** - Easy deal management through spreadsheets
+- 🤖 **AI-Powered Fallback** - OpenAI generates realistic deals when needed
+- ⚡ **Lightning Fast** - Optimized for performance and SEO
 
 ## 🚀 Quick Start
 
-### Local Development
+### Prerequisites
+- Node.js 18.19.0+
+- npm 9.0.0+
+- Google account (for Sheets integration)
+- OpenAI API key (optional, for AI generation)
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy environment variables:
-   ```bash
-   cp .env.example .env.local
-   ```
-4. Configure your environment variables (see Environment Variables section)
-5. Run the development server:
-   ```bash
-   npm run dev
-   ```
-6. Open [http://localhost:3000](http://localhost:3000)
+### Installation
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd cheapeats
 
-## 🌐 Netlify Deployment
+# Install dependencies
+npm install
 
-This project is optimized for Netlify deployment with the following features:
+# Copy environment template
+cp .env.example .env.local
 
-### Automatic Deployment
-- Push to your main branch for automatic deployment
-- Netlify will automatically detect the build settings from `netlify.toml`
+# Start development server
+npm run dev
+```
 
-### Environment Variables (Required)
-Set these in your Netlify dashboard under Site Settings > Environment Variables:
+### Required Environment Variables
+```env
+# Essential for production
+OPENAI_API_KEY=your_openai_api_key
+GOOGLE_SHEETS_ID=your_google_sheets_id
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
+GOOGLE_PRIVATE_KEY=your_private_key
+DAILY_GENERATION_KEY=your_secure_key
 
-**Required:**
-- `OPENAI_API_KEY` - Your OpenAI API key for AI deal generation
-- `GOOGLE_SHEETS_ID` - Google Sheets ID for deal storage
-- `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Service account email
-- `GOOGLE_PRIVATE_KEY` - Private key for Google Sheets access
-- `GOOGLE_PLACES_API_KEY` - Google Places API for location services
-- `DAILY_GENERATION_KEY` - Secret key for daily deal generation
-
-**Optional:**
-- `NEXT_TELEMETRY_DISABLED=1` - Disable Next.js telemetry
-- `NODE_ENV=production` - Set production environment
-
-### Build Configuration
-The project includes optimized build configuration:
-- **Build Command**: `npm run build`
-- **Publish Directory**: `.next`
-- **Functions Directory**: `netlify/functions`
-- **Node Version**: 18
+# Optional
+GOOGLE_PLACES_API_KEY=your_places_api_key
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
 
 ## 📁 Project Structure
-
 ```
-newCheapEats (2)/
-├── app/
-│   ├── api/deals/              # API routes (Netlify Functions)
-│   ├── components/             # React components
-│   ├── deals/                  # Deals pages
-│   └── globals.css            # Global styles
-├── netlify.toml               # Netlify configuration
-├── next.config.js             # Next.js configuration
-└── package.json               # Dependencies and scripts
+app/
+├── api/deals/           # Deal management APIs
+│   ├── route.ts         # Main deals endpoint
+│   ├── generate-daily/  # Daily generation
+│   ├── startup/         # Startup initialization
+│   └── sheets-service.ts # Google Sheets integration
+├── components/          # UI components
+├── deals/              # Deals page
+├── about/              # About page
+└── globals.css         # Global styles
+
+public/
+├── robots.txt          # SEO optimization
+└── sitemap.xml         # Search engine sitemap
+
+netlify.toml            # Netlify deployment config
+next.config.js          # Next.js configuration
 ```
 
-## 🔧 API Endpoints
+## 🌐 Deployment to Netlify
 
-- **GET** `/api/deals` - Fetch deals near location
-- **POST** `/api/deals` - Generate targeted deals
-- **GET** `/api/deals/startup` - Initialize daily deals
-- **POST** `/api/deals/generate-daily` - Generate daily deals (protected)
+### Automatic Deployment
+1. **Connect to Netlify**: Link your repository to Netlify
+2. **Set Environment Variables**: Add all required env vars in Netlify dashboard
+3. **Deploy**: Netlify will automatically use the optimized build configuration
 
-## 🛠️ Development Scripts
+### Manual Deployment
+```bash
+# Build for production
+npm run build
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run type-check` - Type checking without build
+# Deploy to Netlify
+# Upload the 'out' directory to Netlify
+```
 
-## 📊 Google Sheets Integration
+### Environment Variables in Netlify
+Set these in your Netlify dashboard under Site Settings > Environment Variables:
+- `OPENAI_API_KEY`
+- `GOOGLE_SHEETS_ID`
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+- `GOOGLE_PRIVATE_KEY`
+- `DAILY_GENERATION_KEY`
+- `NODE_ENV=production`
 
-See `GOOGLE_SHEETS_SETUP.md` for detailed setup instructions.
+## 📊 Google Sheets Setup
 
-## 🔒 Security Features
+1. **Create Google Spreadsheet** with these columns:
+   ```
+   id | restaurantName | title | description | originalPrice | dealPrice | 
+   discountPercent | category | expirationDate | latitude | longitude | 
+   address | qualityScore | verified | source | sourceUrl | dateAdded | status
+   ```
 
-- API key validation for protected endpoints
-- CORS headers configuration
-- XSS protection headers
-- Content type validation
+2. **Create Service Account**:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Enable Google Sheets API
+   - Create service account
+   - Download JSON credentials
+   - Share your spreadsheet with the service account email
 
-## 🐛 Troubleshooting
+3. **Set Environment Variables** from the JSON file
 
-### Common Issues
+## 🔧 Available Scripts
 
-1. **Build Fails**: Check environment variables are set correctly
-2. **API Routes Not Working**: Ensure Netlify Functions are enabled
-3. **Google Sheets Errors**: Verify service account permissions
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
+npm run clean        # Clean build directories
+```
 
-### Debug Mode
-Enable debug logging by setting `DEBUG_MODE=true` in environment variables.
+## 🌟 Production Optimizations
+
+- ✅ **Static Site Generation** - Pre-rendered pages for speed
+- ✅ **Code Splitting** - Optimized bundle sizes
+- ✅ **Image Optimization** - Compressed and optimized images
+- ✅ **SEO Ready** - Meta tags, sitemap, robots.txt
+- ✅ **Security Headers** - HTTPS, CSP, and security best practices
+- ✅ **Performance Monitoring** - Built-in performance optimizations
+- ✅ **Error Handling** - Comprehensive error boundaries
+- ✅ **Mobile Optimized** - Perfect mobile experience
+
+## 📈 SEO Features
+
+- Meta tags for social sharing
+- Structured data for search engines
+- XML sitemap generation
+- Robots.txt optimization
+- Fast loading times
+- Mobile-first indexing ready
+
+## 🔐 Security Features
+
+- Environment variable protection
+- API rate limiting
+- Input validation and sanitization
+- HTTPS enforcement
+- Security headers (CSP, HSTS, etc.)
+- No sensitive data exposure
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🎯 Live Demo
+
+Visit the live application: [https://cheapeats.netlify.app](https://cheapeats.netlify.app)
+
+---
+
+Built with ❤️ using Next.js 14, TypeScript, and modern web technologies.
