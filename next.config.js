@@ -22,7 +22,7 @@ const nextConfig = {
 
   // Environment variables
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    CUSTOM_KEY: process.env.CUSTOM_KEY || 'placeholder',
   },
 
   // Webpack optimizations for production
@@ -34,7 +34,6 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
-        crypto: false,
         stream: false,
         url: false,
         zlib: false,
