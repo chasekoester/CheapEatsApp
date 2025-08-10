@@ -30,7 +30,7 @@ export default function Navigation() {
             textDecoration: 'none',
             fontSize: 'clamp(1.25rem, 5vw, 1.75rem)',
             fontWeight: '800',
-            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
