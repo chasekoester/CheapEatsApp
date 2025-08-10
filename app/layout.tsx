@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import Navigation from './components/Navigation'
 import AutoDealGenerator from './components/AutoDealGenerator'
+import AuthProvider from './providers/AuthProvider'
 
 export const metadata: Metadata = {
   title: 'CheapEats - AI-Powered Fast Food Deals',
