@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { GoogleSheetsService } from './sheets-service'
+import { AIFastFoodGenerator } from './ai-fast-food-generator'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
