@@ -132,11 +132,16 @@ export class GoogleSheetsService {
       const deals: SheetDeal[] = rows
         .filter((row: any) => {
           const status = row.get('status')
-          const isActive = status === 'active'
-          if (!isActive && rows.indexOf(row) < 3) {
-            console.log(`🔍 Row ${rows.indexOf(row)} status: "${status}" (active: ${isActive})`)
+          const title = row.get('title')
+          const restaurant = row.get('restaurantName')
+
+          // Debug: log all rows to see what's actually there
+          if (rows.indexOf(row) < 5) {
+            console.log(`🔍 Row ${rows.indexOf(row)}: "${title}" at ${restaurant} (status: "${status}")`)
           }
-          return isActive
+
+          // For now, return ALL rows regardless of status to see everything
+          return title && restaurant // Only filter out completely empty rows
         })
         .map((row: any) => ({
           id: row.get('id'),
