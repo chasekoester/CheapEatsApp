@@ -390,6 +390,7 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
+        console.log('📞 Fetching deals from API...')
         const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
           signal: controller.signal,
           headers: {
@@ -398,6 +399,7 @@ export default function DealsPage() {
         })
 
         clearTimeout(timeoutId)
+        console.log('📡 API response received, status:', response.status)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -407,11 +409,18 @@ export default function DealsPage() {
         setLoadingPhase('processing')
 
         const data = await response.json()
-        
+        console.log('📋 Deals data received:', data.deals?.length, 'deals')
+
         if (data.deals && Array.isArray(data.deals)) {
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
+
+          // Complete loading after a short delay
+          setTimeout(() => {
+            console.log('✅ Loading complete, hiding loader')
+            setLoading(false)
+          }, 800)
         } else {
           throw new Error('Invalid data format received from API')
         }
