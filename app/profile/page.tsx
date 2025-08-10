@@ -15,6 +15,27 @@ interface UserProfile {
   newsletterSubscribed: boolean
 }
 
+interface Deal {
+  id: string
+  title: string
+  description: string
+  originalPrice?: string
+  dealPrice?: string
+  discountPercent?: number
+  restaurantName: string
+  category: string
+  expirationDate?: string
+  imageUrl?: string
+  sourceUrl?: string
+  address?: string
+  distance?: number
+  qualityScore?: number
+  verified: boolean
+  source: string
+  scrapedAt: string
+  confidence: number
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
