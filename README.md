@@ -1,176 +1,226 @@
-# 🍔 CheapEats - Fast Food Deals Finder
+# CheapEats - AI-Powered Fast Food Deals 🍔
 
-A modern Next.js application to find verified fast food deals near you using location-based search.
+Find the best fast food deals near you with AI-powered discovery from 40+ restaurants. Now featuring user accounts, favorite deals, and newsletter subscriptions!
 
 ## ✨ Features
 
-- 📍 **Location-Based Deal Discovery** - Find deals near your current location
-- 🔍 **Real Deal Verification** - All deals sourced from official restaurant sources
-- 🎯 **Smart Filtering** - Filter by distance, price, restaurant, and deal type
-- 📱 **Mobile-First Design** - Optimized for mobile devices
-- 🗺️ **Google Maps Integration** - Get directions to restaurants
-- 📊 **Google Sheets Backend** - Easy deal management through spreadsheets
-- 🤖 **AI-Powered Fallback** - OpenAI generates realistic deals when needed
-- ⚡ **Lightning Fast** - Optimized for performance and SEO
+- 🤖 **AI-Generated Deals**: Discover 50+ current fast food deals instantly
+- 📍 **Location-Based**: Find deals near your current location
+- 🔍 **Smart Search**: Search by restaurant, deal type, or food category
+- ⭐ **Quality Scoring**: AI-rated deals for reliability and value
+- 🧭 **Navigation**: Get directions to the nearest restaurant locations
+- 👤 **User Accounts**: Sign in with Google to save your preferences
+- ❤️ **Favorite Deals**: Save and manage your favorite deals
+- 📧 **Newsletter**: Subscribe to get the latest deals delivered
+- 📱 **Mobile Optimized**: Beautiful responsive design for all devices
 
-## 🚀 Quick Start
+## 🚀 Live Demo
 
-### Prerequisites
-- Node.js 18.19.0+
-- npm 9.0.0+
-- Google account (for Sheets integration)
-- OpenAI API key (optional, for AI generation)
+Visit [CheapEats](https://your-app-name.netlify.app) to try it out!
 
-### Installation
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 14 with App Router, TypeScript, React
+- **Styling**: Custom CSS with responsive design
+- **Authentication**: NextAuth.js with Google OAuth
+- **AI**: OpenAI GPT-4 for deal generation and analysis
+- **Data**: Google Sheets integration for deal management
+- **Deployment**: Netlify with optimized static generation
+- **User Data**: JSON-based storage system for favorites and newsletters
+
+## 📋 Prerequisites
+
+Before setting up the project, you'll need:
+
+- Node.js 18.19.0 or higher
+- npm 9.0.0 or higher
+- Google Cloud Platform account
+- OpenAI API account
+- Google Sheets access
+
+## 🔧 Setup Instructions
+
+### 1. Clone and Install
+
 ```bash
-# Clone the repository
 git clone <your-repo-url>
 cd cheapeats
-
-# Install dependencies
 npm install
+```
 
-# Copy environment template
+### 2. Environment Configuration
+
+Copy the environment template:
+```bash
 cp .env.example .env.local
+```
 
-# Start development server
+### 3. Required API Keys and Setup
+
+You'll need to configure several services:
+
+#### OpenAI API
+1. Visit [OpenAI Platform](https://platform.openai.com/)
+2. Create an API key
+3. Add to `.env.local`: `OPENAI_API_KEY=your_key_here`
+
+#### Google Sheets Integration
+1. Follow the detailed setup in [GOOGLE_SHEETS_SETUP.md](./GOOGLE_SHEETS_SETUP.md)
+2. Configure your spreadsheet with deal data
+3. Add the required Google credentials to your environment
+
+#### Google OAuth Authentication
+1. Follow the detailed setup in [AUTHENTICATION_SETUP.md](./AUTHENTICATION_SETUP.md)
+2. Set up OAuth consent screen and credentials
+3. Add Google OAuth credentials to your environment
+
+### 4. Complete Environment Variables
+
+Your `.env.local` should include:
+
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Google Sheets Configuration
+GOOGLE_SHEETS_ID=your_google_sheets_id_here
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email_here
+GOOGLE_PRIVATE_KEY=your_private_key_here
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_oauth_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret_here
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_generated_secret_here
+
+# Optional: Enhanced Features
+GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
+DAILY_GENERATION_KEY=your_secure_daily_generation_key_here
+
+# Development Configuration
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 5. Run Development Server
+
+```bash
 npm run dev
 ```
 
-### Required Environment Variables
-```env
-# Essential for production
-OPENAI_API_KEY=your_openai_api_key
-GOOGLE_SHEETS_ID=your_google_sheets_id
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
-GOOGLE_PRIVATE_KEY=your_private_key
-DAILY_GENERATION_KEY=your_secure_key
+Visit `http://localhost:3000` to see the application running.
 
-# Optional
-GOOGLE_PLACES_API_KEY=your_places_api_key
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-```
+## 🌐 Deployment
+
+### Netlify Deployment
+
+1. **Build Settings**:
+   - Build command: `npm run build`
+   - Publish directory: `out`
+
+2. **Environment Variables**: Add all your environment variables to Netlify's environment settings, updating `NEXTAUTH_URL` to your production domain.
+
+3. **Domain Configuration**: Update OAuth redirect URIs in Google Cloud Console to include your production domain.
+
+### Production Optimizations
+
+The app includes several production optimizations:
+- Static site generation with Next.js export
+- Optimized webpack bundle splitting
+- Security headers via `netlify.toml`
+- SEO optimization with robots.txt and sitemap
+- Comprehensive error handling and fallbacks
 
 ## 📁 Project Structure
+
 ```
-app/
-├── api/deals/           # Deal management APIs
-│   ├── route.ts         # Main deals endpoint
-│   ├── generate-daily/  # Daily generation
-│   ├── startup/         # Startup initialization
-│   └── sheets-service.ts # Google Sheets integration
-├── components/          # UI components
-├── deals/              # Deals page
-├── about/              # About page
-└── globals.css         # Global styles
-
-public/
-├── robots.txt          # SEO optimization
-└── sitemap.xml         # Search engine sitemap
-
-netlify.toml            # Netlify deployment config
-next.config.js          # Next.js configuration
-```
-
-## 🌐 Deployment to Netlify
-
-### Automatic Deployment
-1. **Connect to Netlify**: Link your repository to Netlify
-2. **Set Environment Variables**: Add all required env vars in Netlify dashboard
-3. **Deploy**: Netlify will automatically use the optimized build configuration
-
-### Manual Deployment
-```bash
-# Build for production
-npm run build
-
-# Deploy to Netlify
-# Upload the 'out' directory to Netlify
+cheapeats/
+├── app/                          # Next.js 14 App Router
+│   ├── api/                      # API routes
+│   │   ├── auth/                 # NextAuth authentication
+│   │   ├── deals/                # Deal management APIs
+│   │   ├── user/                 # User profile and favorites
+│   │   └── newsletter/           # Newsletter subscription
+│   ├── components/               # React components
+│   │   ├── Navigation.tsx        # Main navigation with auth
+│   │   └── NewsletterSignup.tsx  # Newsletter subscription
+│   ├── providers/                # Context providers
+│   ├── deals/                    # Deals page and detail views
+│   ├── profile/                  # User profile and dashboard
+│   └── about/                    # About page
+├── data/                         # User data storage (JSON files)
+├── public/                       # Static assets
+├── docs/                         # Setup documentation
+│   ├── GOOGLE_SHEETS_SETUP.md    # Google Sheets integration guide
+│   └── AUTHENTICATION_SETUP.md   # OAuth setup guide
+└── netlify.toml                  # Netlify configuration
 ```
 
-### Environment Variables in Netlify
-Set these in your Netlify dashboard under Site Settings > Environment Variables:
-- `OPENAI_API_KEY`
-- `GOOGLE_SHEETS_ID`
-- `GOOGLE_SERVICE_ACCOUNT_EMAIL`
-- `GOOGLE_PRIVATE_KEY`
-- `DAILY_GENERATION_KEY`
-- `NODE_ENV=production`
+## 🎯 Key Features Explained
 
-## 📊 Google Sheets Setup
+### AI Deal Generation
+- Uses OpenAI GPT-4 to generate realistic fast food deals
+- Includes pricing, descriptions, and restaurant information
+- Fallback system ensures the app always works
 
-1. **Create Google Spreadsheet** with these columns:
-   ```
-   id | restaurantName | title | description | originalPrice | dealPrice | 
-   discountPercent | category | expirationDate | latitude | longitude | 
-   address | qualityScore | verified | source | sourceUrl | dateAdded | status
-   ```
+### User Authentication
+- Google OAuth integration with NextAuth.js
+- Secure session management with JWT tokens
+- User profiles with favorite deals and preferences
 
-2. **Create Service Account**:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Enable Google Sheets API
-   - Create service account
-   - Download JSON credentials
-   - Share your spreadsheet with the service account email
+### Deal Management
+- Favorite/unfavorite deals with heart icons
+- Personal dashboard showing saved deals
+- Remove deals from favorites with single click
 
-3. **Set Environment Variables** from the JSON file
+### Newsletter System
+- Email subscription with name collection
+- Integration with user accounts for automatic info
+- Simple subscribe/unsubscribe functionality
 
-## 🔧 Available Scripts
+### Location Services
+- Browser geolocation API for finding nearby deals
+- Distance calculation to restaurant locations
+- Integration with Google Maps for directions
 
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run type-check   # TypeScript type checking
-npm run clean        # Clean build directories
-```
+## 🔒 Security Features
 
-## 🌟 Production Optimizations
-
-- ✅ **Static Site Generation** - Pre-rendered pages for speed
-- ✅ **Code Splitting** - Optimized bundle sizes
-- ✅ **Image Optimization** - Compressed and optimized images
-- ✅ **SEO Ready** - Meta tags, sitemap, robots.txt
-- ✅ **Security Headers** - HTTPS, CSP, and security best practices
-- ✅ **Performance Monitoring** - Built-in performance optimizations
-- ✅ **Error Handling** - Comprehensive error boundaries
-- ✅ **Mobile Optimized** - Perfect mobile experience
-
-## 📈 SEO Features
-
-- Meta tags for social sharing
-- Structured data for search engines
-- XML sitemap generation
-- Robots.txt optimization
-- Fast loading times
-- Mobile-first indexing ready
-
-## 🔐 Security Features
-
-- Environment variable protection
-- API rate limiting
+- JWT-based authentication with secure sessions
+- Environment variable protection for API keys
+- CORS and security headers via Netlify configuration
 - Input validation and sanitization
-- HTTPS enforcement
-- Security headers (CSP, HSTS, etc.)
-- No sensitive data exposure
+- Secure cookie settings for production
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-## 📄 License
+## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🎯 Live Demo
+## 🆘 Support
 
-Visit the live application: [https://cheapeats.netlify.app](https://cheapeats.netlify.app)
+If you encounter any issues:
+
+1. Check the setup guides in the `docs/` folder
+2. Verify all environment variables are correctly set
+3. Review the troubleshooting sections in the setup guides
+4. Open an issue on GitHub with detailed error information
+
+## 🙏 Acknowledgments
+
+- OpenAI for providing the GPT-4 API
+- Google for Sheets API and OAuth services
+- Next.js team for the excellent framework
+- Netlify for seamless deployment and hosting
 
 ---
 
-Built with ❤️ using Next.js 14, TypeScript, and modern web technologies.
+Built with ❤️ for finding the best fast food deals near you!
