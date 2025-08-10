@@ -322,7 +322,7 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
-        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=75`, {
+        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
