@@ -243,7 +243,7 @@ export default function HomePage() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h2 style={{
             fontSize: 'clamp(1.8rem, 6vw, 2.5rem)',
-            fontWeight: '800',
+            fontWeight: '600',
             marginBottom: '1rem',
             color: '#1f2937',
             textAlign: 'center',
@@ -282,13 +282,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 1
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -318,13 +318,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 2
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -354,13 +354,13 @@ export default function HomePage() {
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-                fontWeight: '800'
+                fontWeight: '600'
               }}>
                 3
               </div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
-                fontWeight: '700',
+                fontWeight: '600',
                 marginBottom: '1rem',
                 color: '#1f2937'
               }}>
@@ -395,7 +395,7 @@ export default function HomePage() {
         <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
           <h3 style={{
             fontSize: 'clamp(1.5rem, 5vw, 2rem)',
-            fontWeight: '800',
+            fontWeight: '600',
             marginBottom: '3rem',
             color: 'white'
           }}>
@@ -410,7 +410,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#fbbf24',
                 marginBottom: '0.5rem'
               }}>
@@ -427,7 +427,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#10b981',
                 marginBottom: '0.5rem'
               }}>
@@ -444,7 +444,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#8b5cf6',
                 marginBottom: '0.5rem'
               }}>
@@ -461,7 +461,7 @@ export default function HomePage() {
             <div>
               <div style={{
                 fontSize: 'clamp(2.5rem, 8vw, 3.5rem)',
-                fontWeight: '900',
+                fontWeight: '700',
                 color: '#ef4444',
                 marginBottom: '0.5rem'
               }}>
