@@ -143,13 +143,13 @@ export async function GET(request: Request) {
             imageUrl: '/api/placeholder/400/300'
           }))
 
-          // Filter by radius and sort by distance
+          // For spreadsheet deals, show ALL deals (don't filter by radius)
+          // These are curated real deals that should always be shown
           deals = dealsWithDistance
-            .filter(deal => deal.distance <= radius)
             .sort((a, b) => a.distance - b.distance)
             .slice(0, requestedCount)
 
-          console.log(`✅ Using ${deals.length} deals from Google Sheets`)
+          console.log(`✅ Using ${deals.length} deals from Google Sheets (all spreadsheet deals shown)`)
         }
       } catch (error) {
         console.error('❌ Failed to fetch from Google Sheets:', error)
