@@ -40,33 +40,36 @@ export class AIFastFoodGenerator {
         return this.getFallbackFastFoodDeals(location, count)
       }
 
-      const prompt = `You are a fast food deals expert. Generate exactly ${count} realistic, current fast food deals for coordinates ${location.latitude}, ${location.longitude}.
+      const prompt = `You are a fast food deals researcher. Find exactly ${count} REAL, current fast food deals that actually exist right now for coordinates ${location.latitude}, ${location.longitude}.
 
-Create deals that customers would actually find at these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
+Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
 
 CRITICAL REQUIREMENTS:
+- Find ONLY deals that actually exist and are currently active
 - Each deal must be COMPLETELY UNIQUE - no duplicate or similar deals
 - Maximum 2 deals per restaurant chain
 - Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks)
 - Vary deal types significantly across restaurants
 
-Focus on these types of fast food deals:
-- App-exclusive promotions (very common)
-- BOGO offers (Buy One Get One)
-- Percentage discounts (10-50% off)
-- Fixed price meals ($5 meals, $1 drinks, etc.)
-- Limited time offers
-- Student/military discounts
-- Loyalty program rewards
-- Combo meal deals
-- Happy hour specials
-- Free items with purchase
+Look for these types of REAL fast food deals that chains commonly offer:
+- App-exclusive promotions (McDonald's app deals, Burger King app offers)
+- BOGO offers (Subway BOGO, Starbucks happy hour)
+- Percentage discounts (Pizza Hut 50% off, Domino's discounts)
+- Fixed price meals ($5 footlongs, $1 drinks, value menus)
+- Limited time offers (seasonal promotions, new product launches)
+- Student/military discounts (verified discount programs)
+- Loyalty program rewards (Starbucks Stars, McDonald's points)
+- Combo meal deals (value meals, family bundles)
+- Happy hour specials (afternoon drink deals)
+- Free items with purchase (free fries, free cookies)
 
-Make deals sound authentic and appealing. Use realistic pricing. Include variety across breakfast, lunch, dinner, drinks, and snacks.
+IMPORTANT:
+- Base deals on actual current promotions these chains run
+- Include realistic pricing that matches current market rates
+- Include accurate "sourceUrl" from the restaurant's official website or app
+- Reference real promotional campaigns and timing
 
-IMPORTANT: Include a realistic "sourceUrl" for each deal that looks like it could be from the restaurant's official website, app, or deals page.
-
-Return ONLY a valid JSON array with exactly ${count} deals:
+Return ONLY a valid JSON array with exactly ${count} REAL deals that exist:
 [
   {
     "restaurantName": "McDonald's",
