@@ -405,12 +405,17 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
-        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
+        const cacheBuster = Date.now()
+        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200&_t=${cacheBuster}`, {
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
           },
         })
+
+        console.log('📊 API Response status:', response.status)
+        console.log('📊 API Response headers:', Object.fromEntries(response.headers.entries()))
 
         clearTimeout(timeoutId)
 
