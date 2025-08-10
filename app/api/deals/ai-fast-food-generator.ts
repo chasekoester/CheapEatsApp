@@ -66,8 +66,17 @@ Look for these types of REAL fast food deals that chains commonly offer:
 IMPORTANT:
 - Base deals on actual current promotions these chains run
 - Include realistic pricing that matches current market rates
-- Include accurate "sourceUrl" from the restaurant's official website or app
+- Include specific "sourceUrl" that leads directly to the deal or app download page
+- For app-exclusive deals, use app store links or the restaurant's mobile app page
+- For web deals, use the most specific URL possible (e.g., promo codes, specific offer pages)
 - Reference real promotional campaigns and timing
+
+SOURCEURL EXAMPLES:
+- McDonald's app deals: "https://www.mcdonalds.com/us/en-us/download-app.html"
+- Starbucks happy hour: "https://www.starbucks.com/rewards/happy-hour"
+- Subway app offers: "https://www.subway.com/en-US/mobile-app"
+- Pizza Hut online deals: "https://www.pizzahut.com/deals"
+- Burger King app: "https://www.bk.com/mobile-app"
 
 Return ONLY a valid JSON array with exactly ${count} REAL deals that exist:
 [
