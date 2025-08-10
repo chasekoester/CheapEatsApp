@@ -607,10 +607,19 @@ export default function DealsPage() {
 
                 // Load deals without user location
                 try {
-                  const response = await fetch('/api/deals?count=200')
+                  const cacheBuster = Date.now()
+                  const response = await fetch(`/api/deals?count=200&_t=${cacheBuster}`)
                   const data = await response.json()
 
+                  console.log('📊 Skip location API response:', {
+                    success: data.success,
+                    dealsCount: data.deals?.length || 0,
+                    source: data.source,
+                    firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
+                  })
+
                   if (data.deals && Array.isArray(data.deals)) {
+                    console.log('✅ Skip location setting deals:', data.deals.length, 'deals from', data.source)
                     setDeals(data.deals)
                     setLoadingProgress(100)
                     setLoadingPhase('complete')
