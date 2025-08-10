@@ -185,7 +185,7 @@ export default function Navigation() {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(66, 133, 244, 0.3)'
               }}
             >
-              Sign In with Google
+              Sign In
             </button>
           )}
         </div>
