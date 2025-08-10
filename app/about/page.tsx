@@ -4,33 +4,45 @@ import Link from 'next/link'
 
 export default function AboutPage() {
   return (
-    <div className="animate-fade-in-up">
-      <div style={{ marginBottom: '2rem' }}>
-        <Link 
-          href="/" 
-          style={{ 
-            color: 'var(--primary-600)', 
-            textDecoration: 'none', 
-            fontSize: '1rem',
-            fontWeight: '500',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--primary-700)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--primary-600)'
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5m0 0l7 7m-7-7l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Back to Home
-        </Link>
-      </div>
+    <div style={{
+      padding: 'clamp(1rem, 4vw, 2rem)',
+      maxWidth: '800px',
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      {/* Improved Back Button */}
+      <Link
+        href="/"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          padding: '0.75rem 1.5rem',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          textDecoration: 'none',
+          fontSize: 'clamp(0.9rem, 3vw, 1rem)',
+          fontWeight: '600',
+          borderRadius: '20px',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+          marginBottom: '2rem',
+          border: 'none'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)'
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5m0 0l7 7m-7-7l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Back to Home
+      </Link>
 
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
