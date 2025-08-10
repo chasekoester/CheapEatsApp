@@ -996,7 +996,7 @@ export default function DealsPage() {
                     }}
                     onClick={(e) => {
                       e.stopPropagation()
-                      getDirectionsToRestaurant(deal.restaurantName, location)
+                      getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
                     🧭 Get Directions
@@ -1135,7 +1135,7 @@ export default function DealsPage() {
               )}
 
               <button
-                onClick={() => getDirectionsToRestaurant(selectedDeal.restaurantName, location)}
+                onClick={() => getDirectionsToRestaurant(selectedDeal.restaurantName, location || undefined)}
                 style={{
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   color: 'white',
