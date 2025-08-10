@@ -42,6 +42,8 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [newsletterLoading, setNewsletterLoading] = useState(false)
+  const [favoriteDealsData, setFavoriteDealsData] = useState<Deal[]>([])
+  const [dealsLoading, setDealsLoading] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
