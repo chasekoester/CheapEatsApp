@@ -36,10 +36,22 @@ export class GoogleSheetsService {
 
   private async initializeSheet() {
     try {
+      // Get and format the private key properly
+      let privateKey = process.env.GOOGLE_PRIVATE_KEY
+      if (privateKey) {
+        // Replace escaped newlines with actual newlines
+        privateKey = privateKey.replace(/\\n/g, '\n')
+
+        // Ensure the key has proper BEGIN/END markers if missing
+        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+          privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`
+        }
+      }
+
       // Create JWT auth
       const serviceAccountAuth = new JWT({
         email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        key: privateKey,
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
       })
 
