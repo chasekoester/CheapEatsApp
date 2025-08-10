@@ -422,8 +422,7 @@ export default function DealsPage() {
     const matchesSearch = deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          deal.restaurantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          deal.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = !selectedCategory || deal.category === selectedCategory
-    return matchesSearch && matchesCategory
+    return matchesSearch
   })
 
   const sortedDeals = [...filteredDeals].sort((a, b) => {
