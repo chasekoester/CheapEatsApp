@@ -71,16 +71,13 @@ export class GoogleSheetsService {
       // Initialize the sheet
       this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_ID!, serviceAccountAuth)
       await this.doc.loadInfo()
-      
-      // Get or create the deals sheet
-      this.sheet = this.doc.sheetsByIndex[0] || await this.doc.addSheet({
-        title: 'Fast Food Deals',
-        headerValues: [
-          'id', 'restaurantName', 'title', 'description', 'originalPrice', 'dealPrice',
-          'discountPercent', 'category', 'expirationDate', 'latitude', 'longitude',
-          'address', 'qualityScore', 'verified', 'source', 'sourceUrl', 'dateAdded', 'status'
-        ]
-      })
+
+      // Get the first sheet (don't try to create one)
+      this.sheet = this.doc.sheetsByIndex[0]
+
+      if (!this.sheet) {
+        throw new Error('No sheets found in the spreadsheet. Please add at least one sheet.')
+      }
 
       console.log('✅ Google Sheets initialized successfully')
     } catch (error) {
