@@ -479,13 +479,18 @@ export default function DealsPage() {
         setDeals(fallbackDeals)
         setLoadingProgress(100)
         setLoadingPhase('complete')
+
+        // Complete loading with fallback
+        setTimeout(() => {
+          console.log('✅ Fallback loading complete')
+          setLoading(false)
+        }, 800)
       }
     } catch (error: any) {
-      console.error('Error loading deals:', error)
+      console.error('💥 Fatal error in loadDeals:', error)
       setError('Failed to load deals. Please try again.')
       setLoadingProgress(100)
       setLoadingPhase('complete')
-    } finally {
       setLoading(false)
     }
   }
