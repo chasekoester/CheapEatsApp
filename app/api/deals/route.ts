@@ -107,12 +107,12 @@ export async function GET(request: Request) {
     }
 
     if (deals.length === 0) {
-      console.log('❌ No deals found')
+      console.log('📝 No deals available')
       return NextResponse.json({
-        success: false,
-        error: 'Unable to find fast food deals at this time. Please try again later.',
+        success: true,
+        message: 'No deals currently available. Please check back later.',
         deals: []
-      }, { status: 500 })
+      }, { status: 200 })
     }
 
     // Sort deals by distance and quality
