@@ -49,7 +49,7 @@ export default function AboutPage() {
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h1 style={{
             fontSize: 'clamp(2.5rem, 8vw, 3rem)',
-            fontWeight: '800',
+            fontWeight: '700',
             marginBottom: '1.5rem',
             color: '#1f2937',
             letterSpacing: '-0.02em'
