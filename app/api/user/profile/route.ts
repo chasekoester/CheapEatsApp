@@ -10,12 +10,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
     
-    const profile = await userService.getUserProfile(session.user.id!)
-    
+    const profile = await userService.getUserProfile((session.user as any).id!)
+
     if (!profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
-    
+
     return NextResponse.json({ profile })
   } catch (error) {
     console.error('Error fetching user profile:', error)
@@ -26,16 +26,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession()
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
-    
+
     const profile = await userService.createOrUpdateUser({
-      id: session.user.id!,
+      id: (session.user as any).id!,
       email: session.user.email,
       name: session.user.name || '',
-      image: session.user.image
+      image: session.user.image || undefined
     })
     
     return NextResponse.json({ profile })
