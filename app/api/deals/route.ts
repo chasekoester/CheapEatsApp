@@ -68,7 +68,7 @@ export async function GET(request: Request) {
         console.warn('⚠️ No deals found in spreadsheet')
         return NextResponse.json({
           success: true,
-          message: 'No deals found in the spreadsheet. Please add deals to continue.',
+          message: 'No deals currently available. Please check back later.',
           deals: []
         }, { status: 200 })
       }
@@ -95,11 +95,15 @@ export async function GET(request: Request) {
 
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
+
+      // Instead of returning error, return empty deals array gracefully
+      console.log('🔄 Returning empty deals array due to authentication issues')
       return NextResponse.json({
-        success: false,
-        error: 'Failed to read from Google Spreadsheet: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        deals: []
-      }, { status: 500 })
+        success: true,
+        message: 'No deals currently available. Please check back later.',
+        deals: [],
+        error: 'Service temporarily unavailable'
+      }, { status: 200 })
     }
 
     if (deals.length === 0) {
