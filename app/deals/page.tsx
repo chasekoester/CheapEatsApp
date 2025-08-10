@@ -656,22 +656,82 @@ export default function DealsPage() {
         {/* Location Display */}
         {locationName && (
           <div style={{
-            textAlign: 'center',
-            marginTop: '1rem',
-            padding: '0.75rem 1.5rem',
-            background: 'linear-gradient(135deg, rgba(103, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
-            borderRadius: '20px',
-            border: '1px solid rgba(103, 126, 234, 0.2)',
-            backdropFilter: 'blur(10px)',
-            display: 'inline-flex',
+            display: 'flex',
+            justifyContent: 'center',
             alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-            fontWeight: '600',
-            color: '#4B5563',
-            boxShadow: '0 4px 15px rgba(103, 126, 234, 0.1)'
+            gap: '1rem',
+            marginTop: '1rem',
+            flexWrap: 'wrap'
           }}>
-            📍 Showing deals near: <span style={{ color: '#667eea' }}>{locationName}</span>
+            <div style={{
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, rgba(103, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
+              borderRadius: '20px',
+              border: '1px solid rgba(103, 126, 234, 0.2)',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+              fontWeight: '600',
+              color: '#4B5563',
+              boxShadow: '0 4px 15px rgba(103, 126, 234, 0.1)'
+            }}>
+              📍 Showing deals near: <span style={{ color: '#667eea' }}>{locationName}</span>
+            </div>
+
+            <button
+              onClick={async () => {
+                setLoading(true)
+                setLoadingPhase('initial')
+                setLoadingProgress(0)
+                try {
+                  const newLocation = await getCurrentLocation()
+                  setLocation(newLocation)
+                  const newLocationName = await getLocationName(newLocation.latitude, newLocation.longitude)
+                  setLocationName(newLocationName)
+
+                  // Refetch deals for new location
+                  const response = await fetch(`/api/deals?lat=${newLocation.latitude}&lng=${newLocation.longitude}&count=200`)
+                  const data = await response.json()
+                  if (data.deals && Array.isArray(data.deals)) {
+                    setDeals(data.deals)
+                  }
+                } catch (error) {
+                  console.error('Failed to update location:', error)
+                } finally {
+                  setLoading(false)
+                  setLoadingPhase('complete')
+                  setLoadingProgress(100)
+                }
+              }}
+              style={{
+                padding: '0.75rem 1.25rem',
+                fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                fontWeight: '600',
+                border: 'none',
+                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontFamily: 'inherit',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)'
+              }}
+            >
+              🔄 Update Location
+            </button>
           </div>
         )}
 
