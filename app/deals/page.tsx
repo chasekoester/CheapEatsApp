@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 
 // Deal interface to match the actual API structure
 interface Deal {
@@ -233,17 +234,19 @@ if (bestMatch && bestMatch in FAST_FOOD_LOGOS) {
 }
 
 export default function DealsPage() {
+  const { data: session } = useSession()
   const [deals, setDeals] = useState<(Deal & { distance: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<'initial' | 'ai_generating' | 'processing' | 'complete'>('initial')
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [sortBy, setSortBy] = useState<'distance' | 'price' | 'savings' | 'rating'>('distance')
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null)
   const [locationName, setLocationName] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
+  const [favoriteDeals, setFavoriteDeals] = useState<string[]>([])
+  const [favoriteLoading, setFavoriteLoading] = useState<{ [dealId: string]: boolean }>({})
 
   // Function to get user's current location
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
@@ -268,6 +271,52 @@ export default function DealsPage() {
         { timeout: 10000, enableHighAccuracy: true }
       )
     })
+  }
+
+  // Function to fetch user's favorite deals
+  const fetchFavoriteDeals = async () => {
+    if (!session?.user) return
+
+    try {
+      const response = await fetch('/api/user/profile')
+      if (response.ok) {
+        const data = await response.json()
+        setFavoriteDeals(data.profile?.favoriteDeals || [])
+      }
+    } catch (error) {
+      console.error('Error fetching favorite deals:', error)
+    }
+  }
+
+  // Function to toggle favorite status of a deal
+  const toggleFavorite = async (dealId: string) => {
+    if (!session?.user) return
+
+    setFavoriteLoading(prev => ({ ...prev, [dealId]: true }))
+
+    try {
+      const isFavorite = favoriteDeals.includes(dealId)
+      const response = await fetch('/api/user/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          action: isFavorite ? 'remove' : 'add'
+        })
+      })
+
+      if (response.ok) {
+        if (isFavorite) {
+          setFavoriteDeals(prev => prev.filter(id => id !== dealId))
+        } else {
+          setFavoriteDeals(prev => [...prev, dealId])
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+    } finally {
+      setFavoriteLoading(prev => ({ ...prev, [dealId]: false }))
+    }
   }
 
   // Function to get location name from coordinates (using major cities database)
@@ -323,7 +372,7 @@ export default function DealsPage() {
       const timeoutId = setTimeout(() => controller.abort(), 45000) // 45 second timeout
 
       try {
-        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=75`, {
+        const response = await fetch(`/api/deals?lat=${userLocation.latitude}&lng=${userLocation.longitude}&count=200`, {
           signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
@@ -419,13 +468,21 @@ export default function DealsPage() {
     loadDeals()
   }, [])
 
+  // Fetch favorite deals when user signs in
+  useEffect(() => {
+    if (session?.user) {
+      fetchFavoriteDeals()
+    } else {
+      setFavoriteDeals([])
+    }
+  }, [session])
+
   // Filter and sort deals
   const filteredDeals = deals.filter(deal => {
     const matchesSearch = deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          deal.restaurantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          deal.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = !selectedCategory || deal.category === selectedCategory
-    return matchesSearch && matchesCategory
+    return matchesSearch
   })
 
   const sortedDeals = [...filteredDeals].sort((a, b) => {
@@ -656,53 +713,6 @@ export default function DealsPage() {
           }}
         />
 
-        {/* Quick Filters */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 'clamp(0.5rem, 2vw, 1rem)',
-          marginTop: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          {['All', 'Pizza', 'Burgers', 'Coffee', 'Mexican'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setSelectedCategory(filter === 'All' ? '' : filter)}
-              style={{
-                padding: 'clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
-                fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
-                fontWeight: '600',
-                border: 'none',
-                borderRadius: '20px',
-                background: selectedCategory === (filter === 'All' ? '' : filter)
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : 'rgba(255, 255, 255, 0.8)',
-                color: selectedCategory === (filter === 'All' ? '' : filter) ? 'white' : '#374151',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontFamily: 'inherit',
-                backdropFilter: 'blur(10px)',
-                boxShadow: selectedCategory === (filter === 'All' ? '' : filter)
-                  ? '0 4px 15px rgba(102, 126, 234, 0.4)'
-                  : '0 2px 8px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseEnter={(e) => {
-                if (selectedCategory !== (filter === 'All' ? '' : filter)) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedCategory !== (filter === 'All' ? '' : filter)) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }
-              }}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Deals Grid */}
@@ -754,24 +764,65 @@ export default function DealsPage() {
                   color: 'white',
                   fontSize: 'clamp(1rem, 3.5vw, 1.1rem)',
                   fontWeight: '800',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                  flex: 1
                 }}>
                   {deal.restaurantName || 'Restaurant'}
                 </div>
 
-                {/* Discount Badge */}
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  color: '#667eea',
-                  borderRadius: '20px',
-                  padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
-                  fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
-                  fontWeight: '900',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                  whiteSpace: 'nowrap',
-                  backdropFilter: 'blur(10px)'
-                }}>
-                  {discountPercent}% OFF
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {/* Favorite Button */}
+                  {session?.user && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleFavorite(deal.id)
+                      }}
+                      disabled={favoriteLoading[deal.id]}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: favoriteLoading[deal.id] ? 'not-allowed' : 'pointer',
+                        fontSize: '1.2rem',
+                        transition: 'all 0.3s ease',
+                        backdropFilter: 'blur(10px)',
+                        opacity: favoriteLoading[deal.id] ? 0.5 : 1
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!favoriteLoading[deal.id]) {
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'
+                          e.currentTarget.style.transform = 'scale(1.1)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      {favoriteDeals.includes(deal.id) ? '❤️' : '🤍'}
+                    </button>
+                  )}
+
+                  {/* Discount Badge */}
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    color: '#667eea',
+                    borderRadius: '20px',
+                    padding: 'clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem)',
+                    fontSize: 'clamp(0.8rem, 3vw, 0.9rem)',
+                    fontWeight: '900',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                    whiteSpace: 'nowrap',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    {discountPercent}% OFF
+                  </div>
                 </div>
               </div>
 

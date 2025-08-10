@@ -116,69 +116,53 @@ export async function GET(request: Request) {
       console.log(`📍 Using default location: ${defaultCity}`)
     }
 
-    // Try to get deals from Google Sheets first
+    // FORCE Google Sheets usage - no AI fallback
     const sheetsService = new GoogleSheetsService()
     let deals: any[] = []
-    let dataSource = 'Sheet Stored'
+    let dataSource = 'Google Spreadsheet'
 
-    if (await sheetsService.isConfigured()) {
-      console.log('📊 Fetching deals from Google Sheets...')
-      try {
-        const sheetDeals = await sheetsService.getActiveDeals()
+    console.log('📊 Reading ALL deals from Google Spreadsheet (Sheet 1)...')
+    try {
+      const sheetDeals = await sheetsService.getActiveDeals()
+      console.log(`📋 Retrieved ${sheetDeals.length} deals from spreadsheet`)
 
-        if (sheetDeals.length > 0) {
-          // Calculate distances for sheet deals and sort by proximity
-          const dealsWithDistance = sheetDeals.map(deal => ({
-            ...deal,
-            distance: sheetsService.calculateDistance(
-              location.latitude,
-              location.longitude,
-              deal.latitude,
-              deal.longitude
-            ),
-            // Convert to the expected format
-            sourceType: 'user_submitted' as const,
-            scrapedAt: new Date().toISOString(),
-            confidence: 95,
-            imageUrl: '/api/placeholder/400/300'
-          }))
+      if (sheetDeals.length > 0) {
+        // Calculate distances for sheet deals and show ALL of them
+        const dealsWithDistance = sheetDeals.map(deal => ({
+          ...deal,
+          distance: sheetsService.calculateDistance(
+            location.latitude,
+            location.longitude,
+            deal.latitude,
+            deal.longitude
+          ),
+          // Convert to the expected format
+          sourceType: 'user_submitted' as const,
+          scrapedAt: new Date().toISOString(),
+          confidence: 100,
+          imageUrl: '/api/placeholder/400/300'
+        }))
 
-          // Filter by radius and sort by distance
-          deals = dealsWithDistance
-            .filter(deal => deal.distance <= radius)
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, requestedCount)
+        // Show ALL spreadsheet deals - no filtering by distance or count
+        deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
 
-          console.log(`✅ Using ${deals.length} deals from Google Sheets`)
-        }
-      } catch (error) {
-        console.error('❌ Failed to fetch from Google Sheets:', error)
+        console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
+      } else {
+        console.log('⚠️ No deals found in spreadsheet - please check Sheet 1')
+        return NextResponse.json({
+          success: false,
+          error: 'No deals found in spreadsheet. Please check that Sheet 1 has data.',
+          deals: [],
+          spreadsheetConfigured: await sheetsService.isConfigured()
+        }, { status: 404 })
       }
-    }
-
-    // Fallback to AI generation if no sheet deals or sheets not configured
-    if (deals.length === 0) {
-      console.log('🤖 Fallback: Generating AI deals...')
-      try {
-        const aiGenerator = new AIFastFoodGenerator()
-
-        // Add timeout to AI generation to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('AI generation timeout')), 20000) // 20 second timeout
-        })
-
-        deals = await Promise.race([
-          aiGenerator.generateFastFoodDeals(location, requestedCount),
-          timeoutPromise
-        ]) as any
-
-        dataSource = 'AI Generated'
-      } catch (aiError) {
-        console.error('AI generation failed:', aiError)
-        // Use hardcoded fallback deals
-        deals = getHardcodedFallbackDeals(location)
-        dataSource = 'Fallback Static'
-      }
+    } catch (error) {
+      console.error('❌ Failed to read from Google Sheets:', error)
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to read from Google Spreadsheet: ' + (error instanceof Error ? error.message : 'Unknown error'),
+        deals: []
+      }, { status: 500 })
     }
 
     if (deals.length === 0) {

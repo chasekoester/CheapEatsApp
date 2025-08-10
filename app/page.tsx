@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import NewsletterSignup from './components/NewsletterSignup'
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -375,6 +376,14 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Newsletter Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        padding: 'clamp(4rem, 8vw, 6rem) clamp(1rem, 4vw, 2rem)'
+      }}>
+        <NewsletterSignup />
       </div>
 
       {/* Stats Section */}

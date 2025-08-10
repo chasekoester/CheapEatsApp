@@ -40,27 +40,45 @@ export class AIFastFoodGenerator {
         return this.getFallbackFastFoodDeals(location, count)
       }
 
-      const prompt = `You are a fast food deals expert. Generate exactly ${count} realistic, current fast food deals for coordinates ${location.latitude}, ${location.longitude}.
+      const prompt = `You are a fast food deals researcher. Find exactly ${count} REAL, current fast food deals that actually exist right now for coordinates ${location.latitude}, ${location.longitude}.
 
-Create deals that customers would actually find at these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
+Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
 
-Focus on these types of fast food deals:
-- App-exclusive promotions (very common)
-- BOGO offers (Buy One Get One)
-- Percentage discounts (10-50% off)
-- Fixed price meals ($5 meals, $1 drinks, etc.)
-- Limited time offers
-- Student/military discounts
-- Loyalty program rewards
-- Combo meal deals
-- Happy hour specials
-- Free items with purchase
+CRITICAL REQUIREMENTS:
+- Find ONLY deals that actually exist and are currently active
+- Each deal must be COMPLETELY UNIQUE - no duplicate or similar deals
+- Maximum 2 deals per restaurant chain
+- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks)
+- Vary deal types significantly across restaurants
 
-Make deals sound authentic and appealing. Use realistic pricing. Include variety across breakfast, lunch, dinner, drinks, and snacks.
+Look for these types of REAL fast food deals that chains commonly offer:
+- App-exclusive promotions (McDonald's app deals, Burger King app offers)
+- BOGO offers (Subway BOGO, Starbucks happy hour)
+- Percentage discounts (Pizza Hut 50% off, Domino's discounts)
+- Fixed price meals ($5 footlongs, $1 drinks, value menus)
+- Limited time offers (seasonal promotions, new product launches)
+- Student/military discounts (verified discount programs)
+- Loyalty program rewards (Starbucks Stars, McDonald's points)
+- Combo meal deals (value meals, family bundles)
+- Happy hour specials (afternoon drink deals)
+- Free items with purchase (free fries, free cookies)
 
-IMPORTANT: Include a realistic "sourceUrl" for each deal that looks like it could be from the restaurant's official website, app, or deals page.
+IMPORTANT:
+- Base deals on actual current promotions these chains run
+- Include realistic pricing that matches current market rates
+- Include specific "sourceUrl" that leads directly to the deal or app download page
+- For app-exclusive deals, use app store links or the restaurant's mobile app page
+- For web deals, use the most specific URL possible (e.g., promo codes, specific offer pages)
+- Reference real promotional campaigns and timing
 
-Return ONLY a valid JSON array with exactly ${count} deals:
+SOURCEURL EXAMPLES:
+- McDonald's app deals: "https://www.mcdonalds.com/us/en-us/download-app.html"
+- Starbucks happy hour: "https://www.starbucks.com/rewards/happy-hour"
+- Subway app offers: "https://www.subway.com/en-US/mobile-app"
+- Pizza Hut online deals: "https://www.pizzahut.com/deals"
+- Burger King app: "https://www.bk.com/mobile-app"
+
+Return ONLY a valid JSON array with exactly ${count} REAL deals that exist:
 [
   {
     "restaurantName": "McDonald's",
@@ -77,7 +95,16 @@ Return ONLY a valid JSON array with exactly ${count} deals:
 
 Categories to use: Fast Food, Pizza, Mexican, Coffee, Sandwiches, Chicken, Burgers, Asian
 Deal types: percentage_off, dollar_off, bogo, free_item, combo_deal, limited_time, app_exclusive
-Keep descriptions under 150 characters and make each deal unique and realistic.`
+
+EXAMPLES of REAL deals to look for:
+- McDonald's: "Free Medium Fries Friday" with $1+ purchase (actual recurring promotion)
+- Starbucks: "Happy Hour BOGO 50% off handcrafted drinks 3-6 PM" (real afternoon special)
+- Subway: "$6.99 Footlong of the Month" (actual monthly promotion)
+- Pizza Hut: "Large 3-Topping Pizza $11.99 Carryout" (real ongoing deal)
+- Taco Bell: "$5 Cravings Box" (actual value meal)
+- Burger King: "Whopper Wednesday $3" (real weekly special)
+
+Find similar REAL deals that these chains actually offer. Keep descriptions under 150 characters and make each deal unique and based on actual promotions.`
 
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
@@ -167,7 +194,7 @@ Keep descriptions under 150 characters and make each deal unique and realistic.`
         verified: true,
         source: 'AI Generated - Fast Food Database',
         sourceType: 'ai_generated' as const,
-        sourceUrl: deal.sourceUrl || this.getRestaurantUrl(deal.restaurantName || ''),
+        sourceUrl: deal.sourceUrl || this.getRestaurantUrl(deal.restaurantName || '', deal.title || ''),
         scrapedAt: new Date().toISOString(),
         confidence: 95,
         imageUrl: this.getFoodImage(deal.restaurantName || '')
@@ -175,7 +202,95 @@ Keep descriptions under 150 characters and make each deal unique and realistic.`
       })
     )
 
-    return processedDeals.filter(deal => deal.restaurantName && deal.title) // Remove any invalid deals
+    // Remove invalid deals and duplicates
+    const validDeals = processedDeals.filter(deal => deal.restaurantName && deal.title)
+
+    // Deduplicate deals by restaurant + similar title
+    const deduplicatedDeals = this.deduplicateDeals(validDeals)
+
+    return deduplicatedDeals
+  }
+
+  /**
+   * Remove duplicate deals based on restaurant and deal similarity
+   */
+  private deduplicateDeals(deals: Deal[]): Deal[] {
+    const seen = new Map<string, Deal>()
+    const restaurantCounts = new Map<string, number>()
+
+    for (const deal of deals) {
+      const restaurant = deal.restaurantName.toLowerCase()
+      const dealKey = this.generateDealKey(deal)
+
+      // Skip if we already have this exact deal
+      if (seen.has(dealKey)) {
+        continue
+      }
+
+      // Limit to 2 deals per restaurant
+      const currentCount = restaurantCounts.get(restaurant) || 0
+      if (currentCount >= 2) {
+        continue
+      }
+
+      // Check for similar deals at the same restaurant
+      const isUnique = !Array.from(seen.values()).some(existingDeal =>
+        existingDeal.restaurantName.toLowerCase() === restaurant &&
+        this.areDealsVerySimlar(deal, existingDeal)
+      )
+
+      if (isUnique) {
+        seen.set(dealKey, deal)
+        restaurantCounts.set(restaurant, currentCount + 1)
+      }
+    }
+
+    return Array.from(seen.values())
+  }
+
+  /**
+   * Generate a unique key for a deal
+   */
+  private generateDealKey(deal: Deal): string {
+    const restaurant = deal.restaurantName.toLowerCase()
+    const title = deal.title.toLowerCase()
+    const price = deal.dealPrice?.toLowerCase() || ''
+
+    // Create a key based on restaurant, key words from title, and price
+    const titleWords = title.split(' ').filter(word =>
+      word.length > 3 && !['deal', 'off', 'the', 'and', 'for', 'with'].includes(word)
+    ).slice(0, 3).join('-')
+
+    return `${restaurant}-${titleWords}-${price}`
+  }
+
+  /**
+   * Check if two deals are very similar (likely duplicates)
+   */
+  private areDealsVerySimlar(deal1: Deal, deal2: Deal): boolean {
+    const title1 = deal1.title.toLowerCase()
+    const title2 = deal2.title.toLowerCase()
+
+    // Check for similar titles (BOGO, Happy Hour, etc.)
+    const similarities = [
+      'bogo', 'happy hour', 'free', '$1', '$2', '$3', '$4', '$5',
+      'combo', 'meal', 'box', 'special', 'off'
+    ]
+
+    for (const term of similarities) {
+      if (title1.includes(term) && title2.includes(term)) {
+        // If both titles contain the same promotional term, they're likely similar
+        return true
+      }
+    }
+
+    // Check if titles are very similar (>60% matching words)
+    const words1 = title1.split(' ')
+    const words2 = title2.split(' ')
+    const matchingWords = words1.filter(word => words2.includes(word))
+    const similarity = matchingWords.length / Math.max(words1.length, words2.length)
+
+    return similarity > 0.6
   }
 
   /**
@@ -622,11 +737,31 @@ Keep descriptions under 150 characters and make each deal unique and realistic.`
   }
 
   /**
-   * Get restaurant's official deals URL
+   * Get restaurant's official deals URL - prioritize app downloads for app-exclusive deals
    */
-  private getRestaurantUrl(restaurantName: string): string {
+  private getRestaurantUrl(restaurantName: string, title?: string): string {
     const name = restaurantName.toLowerCase()
+    const dealTitle = (title || '').toLowerCase()
 
+    // For app-exclusive deals, link to app download pages
+    if (dealTitle.includes('app') || dealTitle.includes('mobile')) {
+      if (name.includes('mcdonald')) return 'https://www.mcdonalds.com/us/en-us/download-app.html'
+      if (name.includes('burger') && name.includes('king')) return 'https://www.bk.com/mobile-app'
+      if (name.includes('taco') && name.includes('bell')) return 'https://www.tacobell.com/mobile-app'
+      if (name.includes('subway')) return 'https://www.subway.com/en-US/mobile-app'
+      if (name.includes('starbucks')) return 'https://www.starbucks.com/rewards/starcode'
+      if (name.includes('chipotle')) return 'https://www.chipotle.com/order'
+    }
+
+    // For rewards/loyalty deals, link to sign-up pages
+    if (dealTitle.includes('reward') || dealTitle.includes('loyalty') || dealTitle.includes('member')) {
+      if (name.includes('starbucks')) return 'https://www.starbucks.com/rewards'
+      if (name.includes('dunkin')) return 'https://www.dunkindonuts.com/en/dd-perks'
+      if (name.includes('chipotle')) return 'https://www.chipotle.com/rewards'
+      if (name.includes('subway')) return 'https://www.subway.com/en-US/subwayrefresh'
+    }
+
+    // Default to specific deals pages
     if (name.includes('mcdonald')) return 'https://www.mcdonalds.com/us/en-us/deals.html'
     if (name.includes('burger') && name.includes('king')) return 'https://www.bk.com/menu/offers'
     if (name.includes('taco') && name.includes('bell')) return 'https://www.tacobell.com/deals'
