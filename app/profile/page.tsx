@@ -315,22 +315,231 @@ export default function ProfilePage() {
             color: '#1f2937',
             margin: '0 0 1rem 0'
           }}>
-            Favorite Deals
+            Favorite Deals ({profile.favoriteDeals.length})
           </h2>
-          {profile.favoriteDeals.length > 0 ? (
-            <p style={{ color: '#6b7280' }}>
-              You have {profile.favoriteDeals.length} favorite deal{profile.favoriteDeals.length !== 1 ? 's' : ''}.
+
+          {dealsLoading ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#6b7280',
+              padding: '2rem 0'
+            }}>
+              <div style={{
+                width: '20px',
+                height: '20px',
+                border: '2px solid #e5e7eb',
+                borderTop: '2px solid #6b7280',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              Loading your favorite deals...
+            </div>
+          ) : favoriteDealsData.length > 0 ? (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1rem'
+            }}>
+              {favoriteDealsData.map((deal) => {
+                const discountPercent = deal.discountPercent || calculateDiscountPercent(deal.originalPrice, deal.dealPrice)
+
+                return (
+                  <div
+                    key={deal.id}
+                    style={{
+                      background: 'white',
+                      borderRadius: '16px',
+                      padding: '1.5rem',
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative'
+                    }}
+                  >
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => removeFavorite(deal.id)}
+                      style={{
+                        position: 'absolute',
+                        top: '1rem',
+                        right: '1rem',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        fontSize: '1.2rem',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+                        e.currentTarget.style.transform = 'scale(1.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'
+                        e.currentTarget.style.transform = 'scale(1)'
+                      }}
+                    >
+                      💔
+                    </button>
+
+                    {/* Deal Header */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      marginBottom: '1rem',
+                      paddingRight: '2.5rem'
+                    }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '12px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700'
+                      }}>
+                        {deal.restaurantName}
+                      </div>
+                      <div style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#059669',
+                        padding: '0.4rem 0.8rem',
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700'
+                      }}>
+                        {discountPercent}% OFF
+                      </div>
+                    </div>
+
+                    {/* Deal Content */}
+                    <h3 style={{
+                      fontSize: '1.1rem',
+                      fontWeight: '700',
+                      color: '#1f2937',
+                      marginBottom: '0.5rem',
+                      lineHeight: '1.3'
+                    }}>
+                      {deal.title}
+                    </h3>
+
+                    <p style={{
+                      fontSize: '0.9rem',
+                      color: '#6b7280',
+                      marginBottom: '1rem',
+                      lineHeight: '1.5'
+                    }}>
+                      {deal.description}
+                    </p>
+
+                    {/* Price */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '0.75rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <div style={{
+                        fontSize: '1.5rem',
+                        fontWeight: '800',
+                        color: '#10b981'
+                      }}>
+                        {parsePrice(deal.dealPrice || '0') === 0 ? 'FREE' : `$${parsePrice(deal.dealPrice || '0').toFixed(2)}`}
+                      </div>
+                      {parsePrice(deal.originalPrice || '0') > 0 && (
+                        <div style={{
+                          fontSize: '1rem',
+                          color: '#9ca3af',
+                          textDecoration: 'line-through'
+                        }}>
+                          ${parsePrice(deal.originalPrice || '0').toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: deal.sourceUrl ? '1fr 1fr' : '1fr',
+                      gap: '0.75rem'
+                    }}>
+                      {deal.sourceUrl && (
+                        <button
+                          onClick={() => window.open(deal.sourceUrl, '_blank')}
+                          style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '12px',
+                            padding: '0.75rem',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)'
+                          }}
+                        >
+                          🎯 View Deal
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(deal.restaurantName + ' near me')}`
+                          window.open(mapsUrl, '_blank')
+                        }}
+                        style={{
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '12px',
+                          padding: '0.75rem',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }}
+                      >
+                        🧭 Directions
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : profile.favoriteDeals.length > 0 ? (
+            <p style={{ color: '#6b7280', padding: '2rem 0' }}>
+              Your favorite deals are loading...
             </p>
           ) : (
-            <p style={{ color: '#6b7280' }}>
+            <p style={{ color: '#6b7280', padding: '2rem 0' }}>
               No favorite deals yet. Start browsing deals to save your favorites!
             </p>
           )}
+
           <Link
             href="/deals"
             style={{
               display: 'inline-block',
-              marginTop: '1rem',
               padding: '12px 24px',
               borderRadius: '12px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -340,7 +549,7 @@ export default function ProfilePage() {
               transition: 'all 0.3s ease'
             }}
           >
-            Browse Deals
+            Browse More Deals
           </Link>
         </div>
 
