@@ -191,6 +191,88 @@ Keep descriptions under 150 characters and make each deal unique and realistic.`
   }
 
   /**
+   * Remove duplicate deals based on restaurant and deal similarity
+   */
+  private deduplicateDeals(deals: Deal[]): Deal[] {
+    const seen = new Map<string, Deal>()
+    const restaurantCounts = new Map<string, number>()
+
+    for (const deal of deals) {
+      const restaurant = deal.restaurantName.toLowerCase()
+      const dealKey = this.generateDealKey(deal)
+
+      // Skip if we already have this exact deal
+      if (seen.has(dealKey)) {
+        continue
+      }
+
+      // Limit to 2 deals per restaurant
+      const currentCount = restaurantCounts.get(restaurant) || 0
+      if (currentCount >= 2) {
+        continue
+      }
+
+      // Check for similar deals at the same restaurant
+      const isUnique = !Array.from(seen.values()).some(existingDeal =>
+        existingDeal.restaurantName.toLowerCase() === restaurant &&
+        this.areDealsVerySimlar(deal, existingDeal)
+      )
+
+      if (isUnique) {
+        seen.set(dealKey, deal)
+        restaurantCounts.set(restaurant, currentCount + 1)
+      }
+    }
+
+    return Array.from(seen.values())
+  }
+
+  /**
+   * Generate a unique key for a deal
+   */
+  private generateDealKey(deal: Deal): string {
+    const restaurant = deal.restaurantName.toLowerCase()
+    const title = deal.title.toLowerCase()
+    const price = deal.dealPrice?.toLowerCase() || ''
+
+    // Create a key based on restaurant, key words from title, and price
+    const titleWords = title.split(' ').filter(word =>
+      word.length > 3 && !['deal', 'off', 'the', 'and', 'for', 'with'].includes(word)
+    ).slice(0, 3).join('-')
+
+    return `${restaurant}-${titleWords}-${price}`
+  }
+
+  /**
+   * Check if two deals are very similar (likely duplicates)
+   */
+  private areDealsVerySimlar(deal1: Deal, deal2: Deal): boolean {
+    const title1 = deal1.title.toLowerCase()
+    const title2 = deal2.title.toLowerCase()
+
+    // Check for similar titles (BOGO, Happy Hour, etc.)
+    const similarities = [
+      'bogo', 'happy hour', 'free', '$1', '$2', '$3', '$4', '$5',
+      'combo', 'meal', 'box', 'special', 'off'
+    ]
+
+    for (const term of similarities) {
+      if (title1.includes(term) && title2.includes(term)) {
+        // If both titles contain the same promotional term, they're likely similar
+        return true
+      }
+    }
+
+    // Check if titles are very similar (>60% matching words)
+    const words1 = title1.split(' ')
+    const words2 = title2.split(' ')
+    const matchingWords = words1.filter(word => words2.includes(word))
+    const similarity = matchingWords.length / Math.max(words1.length, words2.length)
+
+    return similarity > 0.6
+  }
+
+  /**
    * Categorize restaurant by name
    */
   private categorizeFastFood(restaurantName: string): string {
