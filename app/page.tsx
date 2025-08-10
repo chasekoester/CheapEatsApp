@@ -204,6 +204,38 @@ export default function HomePage() {
             )}
           </button>
 
+          {/* Alternative access link */}
+          <div style={{ marginTop: '1.5rem' }}>
+            <button
+              onClick={() => {
+                console.log('🔘 Skip Location / Browse All Deals clicked!')
+                router.push('/deals')
+              }}
+              style={{
+                background: 'transparent',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+              }}
+            >
+              Skip Location - Browse All Deals
+            </button>
+          </div>
+
           {error && (
             <div style={{
               marginTop: '2rem',
