@@ -1,71 +1,85 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Optimize for static generation where possible
-  output: 'standalone',
+  // Production optimizations
+  output: 'export',
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+  distDir: 'out',
 
-  // Experimental features (appDir is now stable in Next.js 14)
+  // Experimental features
   experimental: {
     serverComponentsExternalPackages: ['jsdom', 'cheerio'],
   },
 
-  // Image optimization settings for Netlify
+  // Image optimization for static export
   images: {
-    unoptimized: true, // Required for static exports
+    unoptimized: true,
     domains: [
       'images.unsplash.com',
-      'via.placeholder.com',
-      'picsum.photos',
-      'source.unsplash.com'
+      'logoeps.com',
+      'logos-world.net',
+      'upload.wikimedia.org'
     ],
   },
 
+  // Environment variables
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
 
-
-  // Webpack optimizations
-  webpack: (config, { isServer }) => {
+  // Webpack optimizations for production
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Optimize bundle size
     if (!isServer) {
-      // Reduce bundle size for client
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         net: false,
         tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
       }
     }
+
+    // Production optimizations
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: -10,
+              chunks: 'all',
+            },
+          },
+        },
+      }
+    }
+
     return config
   },
 
-  // API routes configuration for serverless functions
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ]
-  },
+  // Compress assets
+  compress: true,
 
-  // Headers for security
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ]
+  // Generate static site map
+  generateBuildId: async () => {
+    return 'cheapeats-build-' + Date.now()
   },
 }
 
