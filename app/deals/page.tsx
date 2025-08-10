@@ -599,10 +599,60 @@ export default function DealsPage() {
           <div style={{
             fontSize: '0.9rem',
             color: '#9ca3af',
-            fontWeight: '500'
+            fontWeight: '500',
+            marginBottom: '1.5rem'
           }}>
             {loadingProgress}% Complete
           </div>
+
+          {/* Skip Location Button - show after 3 seconds */}
+          {loadingPhase === 'initial' && (
+            <button
+              onClick={async () => {
+                console.log('🚀 Skip location button clicked, loading deals with default location')
+                setLocation({ latitude: 40.7128, longitude: -74.0060 })
+                setLocationName('New York, NY')
+                setLoadingProgress(50)
+                setLoadingPhase('ai_generating')
+
+                // Load deals without user location
+                try {
+                  const response = await fetch('/api/deals?count=200')
+                  const data = await response.json()
+
+                  if (data.deals && Array.isArray(data.deals)) {
+                    setDeals(data.deals)
+                    setLoadingProgress(100)
+                    setLoadingPhase('complete')
+                    setTimeout(() => setLoading(false), 500)
+                  }
+                } catch (error) {
+                  console.error('Failed to load deals:', error)
+                  setError('Failed to load deals. Please try again.')
+                }
+              }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                color: '#374151',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              Skip Location - Browse All Deals
+            </button>
+          )}
         </div>
 
         <style jsx>{`
