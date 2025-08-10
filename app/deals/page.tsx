@@ -261,14 +261,15 @@ export default function DealsPage() {
 
       // Set up a manual timeout in case the browser's timeout doesn't work
       const manualTimeout = setTimeout(() => {
-        console.warn('Manual geolocation timeout, using default location')
+        console.warn('⏰ Manual geolocation timeout (2s), using NYC location')
         resolve({ latitude: 40.7128, longitude: -74.0060 })
-      }, 5000) // 5 second timeout
+      }, 2000) // 2 second timeout - very aggressive
 
+      console.log('📡 Calling navigator.geolocation.getCurrentPosition...')
       navigator.geolocation.getCurrentPosition(
         (position) => {
           clearTimeout(manualTimeout)
-          console.log('✅ Got user location:', position.coords.latitude, position.coords.longitude)
+          console.log('✅ SUCCESS! Got user location:', position.coords.latitude, position.coords.longitude)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
@@ -276,14 +277,14 @@ export default function DealsPage() {
         },
         (error) => {
           clearTimeout(manualTimeout)
-          console.warn('Geolocation error:', error.message)
+          console.warn('❌ Geolocation error code:', error.code, 'message:', error.message)
           // Always resolve with default location instead of rejecting
           resolve({ latitude: 40.7128, longitude: -74.0060 })
         },
         {
-          timeout: 4000,
+          timeout: 1500, // Very short timeout
           enableHighAccuracy: false, // Faster with less accuracy
-          maximumAge: 300000 // 5 minutes cache
+          maximumAge: 600000 // 10 minutes cache
         }
       )
     })
