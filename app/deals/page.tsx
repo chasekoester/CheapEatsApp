@@ -272,6 +272,52 @@ export default function DealsPage() {
     })
   }
 
+  // Function to fetch user's favorite deals
+  const fetchFavoriteDeals = async () => {
+    if (!session?.user) return
+
+    try {
+      const response = await fetch('/api/user/profile')
+      if (response.ok) {
+        const data = await response.json()
+        setFavoriteDeals(data.profile?.favoriteDeals || [])
+      }
+    } catch (error) {
+      console.error('Error fetching favorite deals:', error)
+    }
+  }
+
+  // Function to toggle favorite status of a deal
+  const toggleFavorite = async (dealId: string) => {
+    if (!session?.user) return
+
+    setFavoriteLoading(prev => ({ ...prev, [dealId]: true }))
+
+    try {
+      const isFavorite = favoriteDeals.includes(dealId)
+      const response = await fetch('/api/user/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          action: isFavorite ? 'remove' : 'add'
+        })
+      })
+
+      if (response.ok) {
+        if (isFavorite) {
+          setFavoriteDeals(prev => prev.filter(id => id !== dealId))
+        } else {
+          setFavoriteDeals(prev => [...prev, dealId])
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+    } finally {
+      setFavoriteLoading(prev => ({ ...prev, [dealId]: false }))
+    }
+  }
+
   // Function to get location name from coordinates (using major cities database)
   const getLocationName = async (lat: number, lng: number): Promise<string> => {
     const majorCities = [
