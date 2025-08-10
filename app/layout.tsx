@@ -17,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        <AutoDealGenerator />
-        <Navigation />
-        <main style={{ minHeight: '100vh' }}>
-          {children}
-        </main>
+        <AuthProvider>
+          <AutoDealGenerator />
+          <Navigation />
+          <main style={{ minHeight: '100vh' }}>
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   )
