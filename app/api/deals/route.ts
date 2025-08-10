@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { AIFastFoodGenerator } from './ai-fast-food-generator'
 import { GoogleSheetsService } from './sheets-service'
 
 export const dynamic = 'force-dynamic'
@@ -20,77 +19,6 @@ const locationCoordinates: Record<string, { latitude: number; longitude: number 
   'Austin': { latitude: 30.2672, longitude: -97.7431 }
 }
 
-// Hardcoded fallback deals that don't require any external APIs
-function getHardcodedFallbackDeals(location: { latitude: number; longitude: number }) {
-  return [
-    {
-      id: "static-1",
-      title: "Big Mac Meal Deal",
-      description: "Big Mac, Medium Fries, Medium Drink - Mobile App Only",
-      originalPrice: "$12.99",
-      dealPrice: "$8.99",
-      discountPercent: 31,
-      restaurantName: "McDonald's",
-      category: "Burgers",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://mcdonalds.com/deals",
-      address: "Near you",
-      distance: 0.5,
-      qualityScore: 85,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude + 0.01,
-      longitude: location.longitude + 0.01
-    },
-    {
-      id: "static-2",
-      title: "Whopper Wednesday",
-      description: "Flame-grilled Whopper for just $3 every Wednesday",
-      originalPrice: "$7.99",
-      dealPrice: "$3.00",
-      discountPercent: 62,
-      restaurantName: "Burger King",
-      category: "Burgers",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://bk.com/offers",
-      address: "Downtown",
-      distance: 0.8,
-      qualityScore: 80,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude + 0.02,
-      longitude: location.longitude - 0.01
-    },
-    {
-      id: "static-3",
-      title: "Crunchwrap Supreme Deal",
-      description: "Crunchwrap Supreme + drink for $4.99 via app",
-      originalPrice: "$7.49",
-      dealPrice: "$4.99",
-      discountPercent: 33,
-      restaurantName: "Taco Bell",
-      category: "Mexican",
-      expirationDate: "2024-12-31",
-      imageUrl: "/api/placeholder/400/300",
-      sourceUrl: "https://tacobell.com/deals",
-      address: "Main Street",
-      distance: 1.2,
-      qualityScore: 88,
-      verified: true,
-      source: "Static Fallback",
-      scrapedAt: new Date().toISOString(),
-      confidence: 100,
-      latitude: location.latitude - 0.01,
-      longitude: location.longitude + 0.02
-    }
-  ]
-}
 
 export async function GET(request: Request) {
   try {
