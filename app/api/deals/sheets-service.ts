@@ -118,15 +118,28 @@ export class GoogleSheetsService {
     }
 
     try {
+      console.log(`🔧 About to load header row...`)
       await this.sheet.loadHeaderRow()
+      console.log(`📋 Headers loaded: ${this.sheet.headerValues}`)
+
+      console.log(`🔧 About to get rows...`)
       const rows = await this.sheet.getRows()
 
       console.log(`📊 Total rows in spreadsheet: ${rows.length}`)
+      console.log(`📄 Sheet title: ${this.sheet.title}`)
+      console.log(`📏 Sheet row count: ${this.sheet.rowCount}`)
 
       // Debug: Check what status values we have
       if (rows.length > 0) {
         const statusValues = rows.slice(0, 5).map((row: any) => row.get('status'))
         console.log(`🔍 First 5 status values:`, statusValues)
+
+        // Debug: Check all values for first row
+        const firstRow = rows[0]
+        const allValues = this.sheet.headerValues.map((header: string) => `${header}: "${firstRow.get(header)}"`)
+        console.log(`🔍 First row data:`, allValues.join(', '))
+      } else {
+        console.log(`⚠️ No rows found in spreadsheet!`)
       }
 
       const deals: SheetDeal[] = rows
