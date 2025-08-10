@@ -86,7 +86,16 @@ Return ONLY a valid JSON array with exactly ${count} REAL deals that exist:
 
 Categories to use: Fast Food, Pizza, Mexican, Coffee, Sandwiches, Chicken, Burgers, Asian
 Deal types: percentage_off, dollar_off, bogo, free_item, combo_deal, limited_time, app_exclusive
-Keep descriptions under 150 characters and make each deal unique and realistic.`
+
+EXAMPLES of REAL deals to look for:
+- McDonald's: "Free Medium Fries Friday" with $1+ purchase (actual recurring promotion)
+- Starbucks: "Happy Hour BOGO 50% off handcrafted drinks 3-6 PM" (real afternoon special)
+- Subway: "$6.99 Footlong of the Month" (actual monthly promotion)
+- Pizza Hut: "Large 3-Topping Pizza $11.99 Carryout" (real ongoing deal)
+- Taco Bell: "$5 Cravings Box" (actual value meal)
+- Burger King: "Whopper Wednesday $3" (real weekly special)
+
+Find similar REAL deals that these chains actually offer. Keep descriptions under 150 characters and make each deal unique and based on actual promotions.`
 
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
