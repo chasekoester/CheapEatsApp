@@ -28,10 +28,7 @@ export class GoogleSheetsService {
   private sheet: any = null
 
   constructor() {
-    // Initialize with environment variables
-    if (process.env.GOOGLE_SHEETS_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-      this.initializeSheet()
-    }
+    // Don't auto-initialize - let each method call initialize as needed
   }
 
   private async initializeSheet() {
