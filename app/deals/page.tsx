@@ -341,8 +341,6 @@ export default function DealsPage() {
         const data = await response.json()
         
         if (data.deals && Array.isArray(data.deals)) {
-          console.log(`🔍 Frontend received ${data.deals.length} deals from API`)
-          console.log(`🔍 First few deals:`, data.deals.slice(0, 3).map(d => ({ title: d.title, restaurant: d.restaurantName })))
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
