@@ -58,10 +58,24 @@ export class GoogleSheetsService {
         console.log('🔑 Private key formatted with', keyLines.length, 'lines')
       }
 
-      // Create JWT auth
+      // Create service account credentials object
+      const serviceAccountCredentials = {
+        type: 'service_account',
+        project_id: 'cheapeatsapp-743ab',
+        private_key_id: 'some-key-id',
+        private_key: privateKey,
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        client_id: '12345',
+        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+        token_uri: 'https://oauth2.googleapis.com/token',
+        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!)}`
+      }
+
+      // Create JWT auth with full credentials object
       const serviceAccountAuth = new JWT({
-        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: privateKey,
+        email: serviceAccountCredentials.client_email,
+        key: serviceAccountCredentials.private_key,
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
       })
 
