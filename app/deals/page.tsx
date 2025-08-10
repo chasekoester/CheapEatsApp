@@ -653,6 +653,28 @@ export default function DealsPage() {
           }}
         />
 
+        {/* Location Display */}
+        {locationName && (
+          <div style={{
+            textAlign: 'center',
+            marginTop: '1rem',
+            padding: '0.75rem 1.5rem',
+            background: 'linear-gradient(135deg, rgba(103, 126, 234, 0.1), rgba(118, 75, 162, 0.1))',
+            borderRadius: '20px',
+            border: '1px solid rgba(103, 126, 234, 0.2)',
+            backdropFilter: 'blur(10px)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+            fontWeight: '600',
+            color: '#4B5563',
+            boxShadow: '0 4px 15px rgba(103, 126, 234, 0.1)'
+          }}>
+            📍 Showing deals near: <span style={{ color: '#667eea' }}>{locationName}</span>
+          </div>
+        )}
+
       </div>
 
       {/* Deals Grid */}
