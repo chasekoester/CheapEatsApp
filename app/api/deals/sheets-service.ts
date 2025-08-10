@@ -72,6 +72,12 @@ export class GoogleSheetsService {
       console.log('✅ Google Sheets initialized successfully')
     } catch (error) {
       console.error('❌ Failed to initialize Google Sheets:', error)
+
+      // Check if it's an authentication error
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        console.error('🔑 Google Sheets authentication failed - check private key format and service account email')
+      }
+
       throw error
     }
   }
