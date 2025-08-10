@@ -156,40 +156,22 @@ export async function GET(request: Request) {
       }
     }
 
-    // Only use AI fallback if Google Sheets is not configured or completely empty
+    // Temporarily bypass spreadsheet issues and generate many deals directly
     if (deals.length === 0) {
-      if (await sheetsService.isConfigured()) {
-        console.log('⚠️ Google Sheets configured but returned no deals - spreadsheet may be empty')
-        console.log('💡 Please check your Google Spreadsheet or run daily generation')
+      console.log('🚨 Bypassing spreadsheet issues - generating large set of AI deals directly')
+      try {
+        const aiGenerator = new AIFastFoodGenerator()
 
-        return NextResponse.json({
-          success: false,
-          error: 'No deals available in spreadsheet. Please check your Google Sheets or run daily generation.',
-          deals: [],
-          suggestion: 'Visit /api/deals/startup to generate fresh deals'
-        }, { status: 404 })
-      } else {
-        console.log('🤖 Google Sheets not configured - using AI fallback...')
-        try {
-          const aiGenerator = new AIFastFoodGenerator()
+        // Generate many deals to ensure user sees all possible deals
+        deals = await aiGenerator.generateFastFoodDeals(location, requestedCount)
+        dataSource = 'AI Generated (Bypass Mode)'
 
-          // Add timeout to AI generation to prevent hanging
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('AI generation timeout')), 20000) // 20 second timeout
-          })
-
-          deals = await Promise.race([
-            aiGenerator.generateFastFoodDeals(location, requestedCount),
-            timeoutPromise
-          ]) as any
-
-          dataSource = 'AI Generated'
-        } catch (aiError) {
-          console.error('AI generation failed:', aiError)
-          // Use hardcoded fallback deals
-          deals = getHardcodedFallbackDeals(location)
-          dataSource = 'Fallback Static'
-        }
+        console.log(`✅ Generated ${deals.length} deals in bypass mode`)
+      } catch (aiError) {
+        console.error('AI generation failed:', aiError)
+        // Use hardcoded fallback deals
+        deals = getHardcodedFallbackDeals(location)
+        dataSource = 'Fallback Static'
       }
     }
 
