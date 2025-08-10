@@ -250,40 +250,34 @@ export default function DealsPage() {
 
   // Function to get user's current location
   const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
-    return new Promise((resolve) => {
-      console.log('🗺️ Requesting user location...')
+    console.log('🗺️ Starting location request...')
 
+    return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        console.warn('Geolocation not supported, using default location')
+        console.log('❌ Geolocation not supported, using default NYC location')
         resolve({ latitude: 40.7128, longitude: -74.0060 })
         return
       }
 
-      // Set up a manual timeout in case the browser's timeout doesn't work
-      const manualTimeout = setTimeout(() => {
-        console.warn('Manual geolocation timeout, using default location')
-        resolve({ latitude: 40.7128, longitude: -74.0060 })
-      }, 5000) // 5 second timeout
+      console.log('📱 Requesting geolocation permission...')
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          clearTimeout(manualTimeout)
-          console.log('✅ Got user location:', position.coords.latitude, position.coords.longitude)
+          console.log('✅ Location success:', position.coords.latitude, position.coords.longitude)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           })
         },
         (error) => {
-          clearTimeout(manualTimeout)
-          console.warn('Geolocation error:', error.message)
-          // Always resolve with default location instead of rejecting
+          console.log('⚠️ Location error:', error.code, error.message)
+          console.log('🗽 Using default NYC location')
           resolve({ latitude: 40.7128, longitude: -74.0060 })
         },
         {
-          timeout: 4000,
-          enableHighAccuracy: false, // Faster with less accuracy
-          maximumAge: 300000 // 5 minutes cache
+          timeout: 8000,
+          enableHighAccuracy: true,
+          maximumAge: 60000
         }
       )
     })
