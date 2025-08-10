@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import NewsletterSignup from './components/NewsletterSignup'
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
