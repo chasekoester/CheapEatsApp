@@ -438,53 +438,8 @@ export default function DealsPage() {
           console.warn('API request failed:', fetchError)
         }
         
-        // Use fallback deals on any error
-        const fallbackDeals = [
-          {
-            id: "fallback-1",
-            title: "Big Mac Meal Deal",
-            description: "Big Mac, Medium Fries, Medium Drink",
-            originalPrice: "$12.99",
-            dealPrice: "$8.99",
-            discountPercent: 31,
-            restaurantName: "McDonald's",
-            category: "Burgers",
-            expirationDate: "2024-12-31",
-            imageUrl: "/api/placeholder/400/300",
-            sourceUrl: "https://mcdonalds.com",
-            address: "Near you",
-            distance: 0.5,
-            qualityScore: 85,
-            verified: true,
-            source: "Fallback",
-            scrapedAt: new Date().toISOString(),
-            confidence: 100
-          },
-          {
-            id: "fallback-2",
-            title: "Whopper Wednesday",
-            description: "Flame-grilled Whopper with special sauce",
-            originalPrice: "$9.99",
-            dealPrice: "$5.99",
-            discountPercent: 40,
-            restaurantName: "Burger King",
-            category: "Burgers",
-            expirationDate: "2024-12-31",
-            imageUrl: "/api/placeholder/400/300",
-            sourceUrl: "https://burgerking.com",
-            address: "Downtown",
-            distance: 0.8,
-            qualityScore: 80,
-            verified: true,
-            source: "Fallback",
-            scrapedAt: new Date().toISOString(),
-            confidence: 100
-          }
-        ]
-
-        setDeals(fallbackDeals)
-        setLoadingProgress(100)
-        setLoadingPhase('complete')
+        // No fallback deals - throw error to show proper error message
+        throw fetchError
       }
     } catch (error: any) {
       console.error('Error loading deals:', error)
