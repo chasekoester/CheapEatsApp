@@ -128,6 +128,24 @@ export default function ProfilePage() {
     }
   }
 
+  const parsePrice = (priceStr: string): number => {
+    if (!priceStr) return 0
+    const cleanPrice = priceStr.replace(/[$,]/g, '')
+    const parsed = parseFloat(cleanPrice)
+    return isNaN(parsed) ? 0 : parsed
+  }
+
+  const calculateDiscountPercent = (originalPrice?: string, dealPrice?: string): number => {
+    const original = parsePrice(originalPrice || '0')
+    const deal = parsePrice(dealPrice || '0')
+
+    if (deal === 0 && original > 0) return 100
+    if (original <= 0) return 0
+
+    const discount = Math.round(((original - deal) / original) * 100)
+    return Math.max(0, Math.min(100, discount))
+  }
+
   const toggleNewsletter = async () => {
     if (!session?.user?.email || !profile) return
     
