@@ -374,11 +374,14 @@ export default function DealsPage() {
       setLocation(userLocation)
       setLoadingProgress(30)
 
+      console.log('🏙️ Getting location name...')
       // Get location name
       const locName = await getLocationName(userLocation.latitude, userLocation.longitude)
+      console.log('📍 Location name:', locName)
       setLocationName(locName)
       setLoadingProgress(40)
 
+      console.log('🤖 Starting AI deal generation phase...')
       setLoadingPhase('ai_generating')
       setLoadingProgress(50)
 
