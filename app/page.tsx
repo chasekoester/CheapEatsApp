@@ -378,6 +378,14 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Newsletter Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        padding: 'clamp(4rem, 8vw, 6rem) clamp(1rem, 4vw, 2rem)'
+      }}>
+        <NewsletterSignup />
+      </div>
+
       {/* Stats Section */}
       <div style={{
         background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
