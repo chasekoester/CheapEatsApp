@@ -467,6 +467,15 @@ export default function DealsPage() {
     loadDeals()
   }, [])
 
+  // Fetch favorite deals when user signs in
+  useEffect(() => {
+    if (session?.user) {
+      fetchFavoriteDeals()
+    } else {
+      setFavoriteDeals([])
+    }
+  }, [session])
+
   // Filter and sort deals
   const filteredDeals = deals.filter(deal => {
     const matchesSearch = deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
