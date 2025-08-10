@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
+  const { data: session, status } = useSession()
+
   return (
     <nav style={{
       background: 'rgba(255, 255, 255, 0.95)',
