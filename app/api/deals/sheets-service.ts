@@ -112,75 +112,66 @@ export class GoogleSheetsService {
   }
 
   async getActiveDeals(): Promise<SheetDeal[]> {
+    // Force reinitialization if sheet is not available
     if (!this.sheet) {
-      console.warn('Google Sheets not initialized, returning empty array')
+      console.log('🔄 Google Sheets not initialized, forcing initialization...')
+      await this.initializeSheet()
+    }
+
+    if (!this.sheet) {
+      console.error('❌ Failed to initialize Google Sheets after retry')
       return []
     }
 
     try {
-      console.log(`🔧 About to load header row...`)
-      await this.sheet.loadHeaderRow()
-      console.log(`📋 Headers loaded: ${this.sheet.headerValues}`)
+      console.log(`🔧 Reading from Sheet 1 (${this.sheet.title})...`)
 
-      console.log(`🔧 About to get rows...`)
+      // Force reload the sheet info
+      await this.doc!.loadInfo()
+      this.sheet = this.doc!.sheetsByIndex[0] // Ensure we're reading from Sheet 1
+
+      await this.sheet.loadHeaderRow()
       const rows = await this.sheet.getRows()
 
-      console.log(`📊 Total rows in spreadsheet: ${rows.length}`)
-      console.log(`📄 Sheet title: ${this.sheet.title}`)
-      console.log(`📏 Sheet row count: ${this.sheet.rowCount}`)
+      console.log(`📊 Found ${rows.length} rows in spreadsheet`)
 
-      // Debug: Check what status values we have
-      if (rows.length > 0) {
-        const statusValues = rows.slice(0, 5).map((row: any) => row.get('status'))
-        console.log(`🔍 First 5 status values:`, statusValues)
-
-        // Debug: Check all values for first row
-        const firstRow = rows[0]
-        const allValues = this.sheet.headerValues.map((header: string) => `${header}: "${firstRow.get(header)}"`)
-        console.log(`🔍 First row data:`, allValues.join(', '))
-      } else {
-        console.log(`⚠️ No rows found in spreadsheet!`)
+      if (rows.length === 0) {
+        console.log(`⚠️ No rows found in Sheet 1!`)
+        return []
       }
 
+      // Get ALL deals from spreadsheet - no filtering by status
       const deals: SheetDeal[] = rows
         .filter((row: any) => {
-          const status = row.get('status')
           const title = row.get('title')
           const restaurant = row.get('restaurantName')
-
-          // Debug: log all rows to see what's actually there
-          if (rows.indexOf(row) < 5) {
-            console.log(`🔍 Row ${rows.indexOf(row)}: "${title}" at ${restaurant} (status: "${status}")`)
-          }
-
-          // For now, return ALL rows regardless of status to see everything
-          return title && restaurant // Only filter out completely empty rows
+          return title && restaurant // Only require title and restaurant
         })
         .map((row: any) => ({
-          id: row.get('id'),
+          id: row.get('id') || `sheet-${Date.now()}-${Math.random()}`,
           restaurantName: row.get('restaurantName'),
           title: row.get('title'),
-          description: row.get('description'),
-          originalPrice: row.get('originalPrice'),
-          dealPrice: row.get('dealPrice'),
+          description: row.get('description') || '',
+          originalPrice: row.get('originalPrice') || '',
+          dealPrice: row.get('dealPrice') || '',
           discountPercent: parseInt(row.get('discountPercent')) || 0,
-          category: row.get('category'),
-          expirationDate: row.get('expirationDate'),
-          latitude: parseFloat(row.get('latitude')) || 0,
-          longitude: parseFloat(row.get('longitude')) || 0,
-          address: row.get('address'),
-          qualityScore: parseInt(row.get('qualityScore')) || 75,
-          verified: row.get('verified') === 'true',
-          source: row.get('source'),
-          sourceUrl: row.get('sourceUrl') || undefined,
-          dateAdded: row.get('dateAdded'),
-          status: row.get('status') as 'active' | 'inactive'
+          category: row.get('category') || 'Fast Food',
+          expirationDate: row.get('expirationDate') || '',
+          latitude: parseFloat(row.get('latitude')) || 40.7128,
+          longitude: parseFloat(row.get('longitude')) || -74.0060,
+          address: row.get('address') || 'Near you',
+          qualityScore: parseInt(row.get('qualityScore')) || 85,
+          verified: true,
+          source: row.get('source') || 'Spreadsheet',
+          sourceUrl: row.get('sourceUrl') || '',
+          dateAdded: row.get('dateAdded') || new Date().toISOString().split('T')[0],
+          status: 'active' as const
         }))
 
-      console.log(`✅ Retrieved ${deals.length} active deals from ${rows.length} total rows`)
+      console.log(`✅ Successfully retrieved ${deals.length} deals from spreadsheet`)
       return deals
     } catch (error) {
-      console.error('❌ Failed to get deals from Google Sheets:', error)
+      console.error('❌ Failed to read from Google Sheets:', error)
       return []
     }
   }
