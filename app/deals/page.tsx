@@ -655,53 +655,6 @@ export default function DealsPage() {
           }}
         />
 
-        {/* Quick Filters */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 'clamp(0.5rem, 2vw, 1rem)',
-          marginTop: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          {['All', 'Pizza', 'Burgers', 'Coffee', 'Mexican'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setSelectedCategory(filter === 'All' ? '' : filter)}
-              style={{
-                padding: 'clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
-                fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
-                fontWeight: '600',
-                border: 'none',
-                borderRadius: '20px',
-                background: selectedCategory === (filter === 'All' ? '' : filter)
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : 'rgba(255, 255, 255, 0.8)',
-                color: selectedCategory === (filter === 'All' ? '' : filter) ? 'white' : '#374151',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                fontFamily: 'inherit',
-                backdropFilter: 'blur(10px)',
-                boxShadow: selectedCategory === (filter === 'All' ? '' : filter)
-                  ? '0 4px 15px rgba(102, 126, 234, 0.4)'
-                  : '0 2px 8px rgba(0, 0, 0, 0.1)'
-              }}
-              onMouseEnter={(e) => {
-                if (selectedCategory !== (filter === 'All' ? '' : filter)) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedCategory !== (filter === 'All' ? '' : filter)) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }
-              }}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Deals Grid */}
