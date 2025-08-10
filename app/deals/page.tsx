@@ -428,7 +428,15 @@ export default function DealsPage() {
 
         const data = await response.json()
 
+        console.log('📊 API Response data:', {
+          success: data.success,
+          dealsCount: data.deals?.length || 0,
+          source: data.source,
+          firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
+        })
+
         if (data.deals && Array.isArray(data.deals)) {
+          console.log('✅ Setting deals:', data.deals.length, 'deals from', data.source)
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
