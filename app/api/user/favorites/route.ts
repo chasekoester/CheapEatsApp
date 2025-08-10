@@ -18,9 +18,9 @@ export async function POST(request: NextRequest) {
     
     let success = false
     if (action === 'add') {
-      success = await userService.addFavoriteDeal(session.user.id!, dealId)
+      success = await userService.addFavoriteDeal((session.user as any).id!, dealId)
     } else if (action === 'remove') {
-      success = await userService.removeFavoriteDeal(session.user.id!, dealId)
+      success = await userService.removeFavoriteDeal((session.user as any).id!, dealId)
     }
     
     if (!success) {
