@@ -429,6 +429,12 @@ export default function DealsPage() {
     return matchesSearch && matchesCategory
   })
 
+  // Debug: Log filtering results
+  console.log(`🔍 Total deals: ${deals.length}, Filtered: ${filteredDeals.length}, Search: "${searchTerm}", Category: "${selectedCategory}"`)
+  if (deals.length > 0 && filteredDeals.length === 0) {
+    console.log(`🚨 All deals filtered out! First deal:`, deals[0])
+  }
+
   const sortedDeals = [...filteredDeals].sort((a, b) => {
     switch (sortBy) {
       case 'price':
