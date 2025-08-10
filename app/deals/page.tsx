@@ -249,38 +249,36 @@ export default function DealsPage() {
   const [favoriteLoading, setFavoriteLoading] = useState<{ [dealId: string]: boolean }>({})
 
   // Function to get user's current location
-  const getCurrentLocation = (): Promise<{ latitude: number; longitude: number }> => {
-    console.log('🗺️ Starting location request...')
+  const getCurrentLocation = async (): Promise<{ latitude: number; longitude: number }> => {
+    console.log('🗺️ Getting location...')
 
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        console.log('❌ Geolocation not supported, using default NYC location')
-        resolve({ latitude: 40.7128, longitude: -74.0060 })
-        return
+    // Default NYC location
+    const defaultLocation = { latitude: 40.7128, longitude: -74.0060 }
+
+    if (!navigator.geolocation) {
+      console.log('❌ No geolocation support')
+      return defaultLocation
+    }
+
+    try {
+      console.log('📱 Requesting location...')
+
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 5000,
+          enableHighAccuracy: false
+        })
+      })
+
+      console.log('✅ Got location:', position.coords.latitude, position.coords.longitude)
+      return {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
       }
-
-      console.log('📱 Requesting geolocation permission...')
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('✅ Location success:', position.coords.latitude, position.coords.longitude)
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          })
-        },
-        (error) => {
-          console.log('⚠️ Location error:', error.code, error.message)
-          console.log('🗽 Using default NYC location')
-          resolve({ latitude: 40.7128, longitude: -74.0060 })
-        },
-        {
-          timeout: 8000,
-          enableHighAccuracy: true,
-          maximumAge: 60000
-        }
-      )
-    })
+    } catch (error) {
+      console.log('⚠️ Location failed, using default')
+      return defaultLocation
+    }
   }
 
   // Function to fetch user's favorite deals
