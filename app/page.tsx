@@ -149,7 +149,7 @@ export default function HomePage() {
               padding: 'clamp(16px, 5vw, 20px) clamp(32px, 8vw, 48px)',
               color: isLoading ? 'rgba(255, 255, 255, 0.7)' : '#1f2937',
               fontSize: 'clamp(16px, 4vw, 18px)',
-              fontWeight: '800',
+              fontWeight: '600',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
               boxShadow: isLoading
