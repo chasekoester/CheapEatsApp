@@ -62,18 +62,69 @@ export default function ProfilePage() {
       const createResponse = await fetch('/api/user/profile', {
         method: 'POST'
       })
-      
+
       if (createResponse.ok) {
         const getResponse = await fetch('/api/user/profile')
         if (getResponse.ok) {
           const data = await getResponse.json()
           setProfile(data.profile)
+
+          // Fetch favorite deals data if user has favorites
+          if (data.profile?.favoriteDeals?.length > 0) {
+            fetchFavoriteDealsData(data.profile.favoriteDeals)
+          }
         }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchFavoriteDealsData = async (favoriteIds: string[]) => {
+    if (favoriteIds.length === 0) return
+
+    setDealsLoading(true)
+    try {
+      // Fetch all deals and filter by favorite IDs
+      const response = await fetch('/api/deals?count=200')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.deals && Array.isArray(data.deals)) {
+          const favoriteDeals = data.deals.filter((deal: Deal) => favoriteIds.includes(deal.id))
+          setFavoriteDealsData(favoriteDeals)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching favorite deals data:', error)
+    } finally {
+      setDealsLoading(false)
+    }
+  }
+
+  const removeFavorite = async (dealId: string) => {
+    if (!session?.user) return
+
+    try {
+      const response = await fetch('/api/user/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealId,
+          action: 'remove'
+        })
+      })
+
+      if (response.ok) {
+        setProfile(prev => prev ? {
+          ...prev,
+          favoriteDeals: prev.favoriteDeals.filter(id => id !== dealId)
+        } : null)
+        setFavoriteDealsData(prev => prev.filter(deal => deal.id !== dealId))
+      }
+    } catch (error) {
+      console.error('Error removing favorite:', error)
     }
   }
 
