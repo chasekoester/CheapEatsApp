@@ -42,10 +42,20 @@ export class GoogleSheetsService {
         // Replace escaped newlines with actual newlines
         privateKey = privateKey.replace(/\\n/g, '\n')
 
-        // Ensure the key has proper BEGIN/END markers if missing
-        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-          privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`
+        // Remove any existing headers/footers and format properly
+        privateKey = privateKey.replace(/-----BEGIN PRIVATE KEY-----/g, '')
+        privateKey = privateKey.replace(/-----END PRIVATE KEY-----/g, '')
+        privateKey = privateKey.replace(/\s/g, '')
+
+        // Rebuild the key with proper formatting
+        const keyLines = []
+        for (let i = 0; i < privateKey.length; i += 64) {
+          keyLines.push(privateKey.substring(i, i + 64))
         }
+
+        privateKey = `-----BEGIN PRIVATE KEY-----\n${keyLines.join('\n')}\n-----END PRIVATE KEY-----`
+
+        console.log('🔑 Private key formatted with', keyLines.length, 'lines')
       }
 
       // Create JWT auth
