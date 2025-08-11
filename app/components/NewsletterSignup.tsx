@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-// import { useSession } from 'next-auth/react' // Temporarily disabled
+import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
-  const session = null // Temporarily disabled NextAuth
+  const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
