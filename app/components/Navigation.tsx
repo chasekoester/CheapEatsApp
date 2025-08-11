@@ -5,17 +5,9 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
-  let session = null
-  let status = 'unauthenticated'
-
-  try {
-    const sessionData = useSession()
-    session = sessionData.data
-    status = sessionData.status
-  } catch (error) {
-    console.log('NextAuth session error handled:', error)
-    // Fallback to unauthenticated state
-  }
+  // Use static unauthenticated state to prevent CLIENT_FETCH_ERROR
+  const session = null
+  const status = 'unauthenticated'
 
   return (
     <nav style={{
@@ -148,7 +140,10 @@ export default function Navigation() {
                 </Link>
               )}
               <button
-                onClick={() => signOut()}
+                onClick={() => {
+                  // Redirect directly to signout without NextAuth client-side fetch
+                  window.location.href = '/api/auth/signout'
+                }}
                 style={{
                   fontSize: 'clamp(14px, 3vw, 16px)',
                   fontWeight: '500',
@@ -174,7 +169,10 @@ export default function Navigation() {
             </div>
           ) : (
             <button
-              onClick={() => signIn('google')}
+              onClick={() => {
+                // Redirect directly to Google OAuth without NextAuth client-side fetch
+                window.location.href = '/api/auth/signin/google'
+              }}
               style={{
                 fontSize: 'clamp(14px, 3vw, 16px)',
                 fontWeight: '500',
