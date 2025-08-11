@@ -23,7 +23,6 @@ const locationCoordinates: Record<string, { latitude: number; longitude: number 
 
 export async function GET(request: Request) {
   try {
-    console.log('🚀 Fast Food Deals API called')
 
     // Extract user location from query parameters
     const url = new URL(request.url)
@@ -37,7 +36,6 @@ export async function GET(request: Request) {
 
     if (userLat && userLng && !isNaN(userLat) && !isNaN(userLng)) {
       location = { latitude: userLat, longitude: userLng }
-      console.log(`📍 User location: ${userLat}, ${userLng} (radius: ${radius} miles)`)
     } else {
       // Default to a major city if no location provided
       const defaultCity = 'New York'
@@ -50,7 +48,6 @@ export async function GET(request: Request) {
     let deals: any[] = []
     let dataSource = 'Google Spreadsheet'
 
-    console.log('📊 Reading ONLY from Google Spreadsheet...')
 
     if (!(await sheetsService.isConfigured())) {
       console.error('❌ Google Sheets not configured!')
@@ -63,10 +60,8 @@ export async function GET(request: Request) {
 
     try {
       const sheetDeals = await sheetsService.getActiveDeals()
-      console.log(`📋 Retrieved ${sheetDeals.length} deals from spreadsheet`)
 
       if (sheetDeals.length === 0) {
-        console.warn('⚠️ No deals found in spreadsheet')
         return NextResponse.json({
           success: true,
           message: 'No deals currently available. Please check back later.',
@@ -92,7 +87,6 @@ export async function GET(request: Request) {
 
       // Show ALL spreadsheet deals - no filtering by distance or count
       deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
-      console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
 
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
@@ -149,7 +143,6 @@ export async function GET(request: Request) {
       return acc
     }, [] as typeof deals)
 
-    console.log(`🔄 Deduplicated deals: ${deals.length} → ${deduplicatedDeals.length}`)
 
     // Sort deals by distance and quality
     const sortedDeals = deduplicatedDeals.sort((a, b) => {
@@ -161,7 +154,6 @@ export async function GET(request: Request) {
       return (b.qualityScore || 0) - (a.qualityScore || 0)
     })
 
-    console.log(`✅ Successfully served ${sortedDeals.length} deals from ${dataSource}`)
 
     return NextResponse.json({
       success: true,
