@@ -112,13 +112,13 @@ export async function GET(request: Request) {
       // Check for exact duplicates (same restaurant + title + price)
       const exactKey = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}-${deal.dealPrice?.toLowerCase().trim()}`
 
-      const hasExactDuplicate = acc.some(existingDeal => {
+      const hasExactDuplicate = acc.some((existingDeal: typeof deal) => {
         const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}-${existingDeal.dealPrice?.toLowerCase().trim()}`
         return existingKey === exactKey
       })
 
       // Check for very similar deals at same restaurant (similar titles)
-      const hasSimilarDeal = acc.some(existingDeal => {
+      const hasSimilarDeal = acc.some((existingDeal: typeof deal) => {
         if (existingDeal.restaurantName?.toLowerCase().trim() !== deal.restaurantName?.toLowerCase().trim()) {
           return false
         }
@@ -144,7 +144,7 @@ export async function GET(request: Request) {
 
 
     // Sort deals by distance and quality
-    const sortedDeals = deduplicatedDeals.sort((a, b) => {
+    const sortedDeals = deduplicatedDeals.sort((a: typeof deals[0], b: typeof deals[0]) => {
       // Primary sort: distance
       const distanceDiff = a.distance - b.distance
       if (Math.abs(distanceDiff) > 0.5) return distanceDiff
@@ -167,9 +167,9 @@ export async function GET(request: Request) {
       },
       stats: {
         totalDeals: sortedDeals.length,
-        averageQuality: Math.round(sortedDeals.reduce((sum, deal) => sum + (deal.qualityScore || 0), 0) / sortedDeals.length),
-        categories: [...new Set(sortedDeals.map(deal => deal.category))],
-        restaurants: [...new Set(sortedDeals.map(deal => deal.restaurantName))].length
+        averageQuality: Math.round(sortedDeals.reduce((sum: number, deal: typeof deals[0]) => sum + (deal.qualityScore || 0), 0) / sortedDeals.length),
+        categories: [...new Set(sortedDeals.map((deal: typeof deals[0]) => deal.category))],
+        restaurants: [...new Set(sortedDeals.map((deal: typeof deals[0]) => deal.restaurantName))].length
       }
     }, {
       headers: {
