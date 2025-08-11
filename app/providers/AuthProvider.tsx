@@ -1,22 +1,12 @@
 'use client'
 
-import { SessionProvider } from 'next-auth/react'
 import { ReactNode } from 'react'
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
+// Simple auth provider - no external dependencies, no fetch requests
 export default function AuthProvider({ children }: AuthProviderProps) {
-  return (
-    <SessionProvider
-      basePath="/api/auth"
-      refetchInterval={0}
-      refetchOnWindowFocus={false}
-      refetchWhenOffline={false}
-      session={null}
-    >
-      {children}
-    </SessionProvider>
-  )
+  return <>{children}</>
 }
