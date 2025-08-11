@@ -5,8 +5,8 @@ import GoogleProvider from 'next-auth/providers/google'
 const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     })
   ],
   callbacks: {
@@ -26,11 +26,7 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET || 'development-secret-key',
 }
 
 const handler = NextAuth(authOptions)
