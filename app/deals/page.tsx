@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react' // Temporarily disabled for debugging
 
 // Deal interface to match the actual API structure
 interface Deal {
@@ -240,7 +240,7 @@ if (bestMatch && bestMatch in FAST_FOOD_LOGOS) {
 }
 
 export default function DealsPage() {
-  const { data: session } = useSession()
+  const session = null // Temporarily disabled NextAuth for debugging
   const [deals, setDeals] = useState<(Deal & { distance: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<'initial' | 'ai_generating' | 'processing' | 'complete'>('initial')
