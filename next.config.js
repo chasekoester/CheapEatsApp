@@ -1,82 +1,64 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Production optimizations - removed export for auth support
+  // Enable static site generation for better performance
+  output: 'export',
   trailingSlash: true,
-  skipTrailingSlashRedirect: true,
-
-  // Experimental features
-  experimental: {
-    serverComponentsExternalPackages: ['jsdom', 'cheerio'],
-  },
-
-  // Image optimization for static export
   images: {
-    unoptimized: true,
-    domains: [
-      'images.unsplash.com',
-      'logoeps.com',
-      'logos-world.net',
-      'upload.wikimedia.org'
-    ],
+    unoptimized: true
   },
-
-  // Environment variables
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY || 'placeholder',
-  },
-
-  // Webpack optimizations for production
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Optimize bundle size
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        stream: false,
-        url: false,
-        zlib: false,
-        http: false,
-        https: false,
-        assert: false,
-        os: false,
-        path: false,
-      }
-    }
-
-    // Production optimizations
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: {
-              minChunks: 2,
-              priority: -20,
-              reuseExistingChunk: true,
-            },
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              priority: -10,
-              chunks: 'all',
-            },
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
           },
-        },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ]
+  },
+
+  // Production optimizations
+  experimental: {
+    optimizeCss: true,
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Bundle analyzer for production builds
+      if (process.env.ANALYZE === 'true') {
+        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+        config.plugins.push(
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            openAnalyzer: false,
+          })
+        )
       }
     }
-
     return config
   },
 
-  // Compress assets
-  compress: true,
-
-  // Generate static site map
-  generateBuildId: async () => {
-    return 'cheapeats-build-' + Date.now()
+  // Environment variables validation
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 }
 
