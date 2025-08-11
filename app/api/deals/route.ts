@@ -114,15 +114,35 @@ export async function GET(request: Request) {
       }, { status: 200 })
     }
 
-    // Light deduplication - only remove exact duplicates, allow variety
+    // Smart deduplication - remove duplicates but allow restaurant variety
     const deduplicatedDeals = deals.reduce((acc, deal) => {
-      const key = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}-${deal.dealPrice?.toLowerCase().trim()}`
+      // Check for exact duplicates (same restaurant + title + price)
+      const exactKey = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}-${deal.dealPrice?.toLowerCase().trim()}`
 
-      // Only remove if it's an EXACT duplicate (same restaurant, title, AND price)
-      if (!acc.some(existingDeal => {
+      const hasExactDuplicate = acc.some(existingDeal => {
         const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}-${existingDeal.dealPrice?.toLowerCase().trim()}`
-        return existingKey === key
-      })) {
+        return existingKey === exactKey
+      })
+
+      // Check for very similar deals at same restaurant (similar titles)
+      const hasSimilarDeal = acc.some(existingDeal => {
+        if (existingDeal.restaurantName?.toLowerCase().trim() !== deal.restaurantName?.toLowerCase().trim()) {
+          return false
+        }
+
+        const existingTitle = existingDeal.title?.toLowerCase().trim() || ''
+        const currentTitle = deal.title?.toLowerCase().trim() || ''
+
+        // Check for highly similar titles (80%+ word overlap)
+        const existingWords = new Set(existingTitle.split(/\s+/))
+        const currentWords = new Set(currentTitle.split(/\s+/))
+        const intersection = new Set([...existingWords].filter(x => currentWords.has(x)))
+        const similarity = intersection.size / Math.max(existingWords.size, currentWords.size)
+
+        return similarity > 0.8
+      })
+
+      if (!hasExactDuplicate && !hasSimilarDeal) {
         acc.push(deal)
       }
 
