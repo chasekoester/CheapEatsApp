@@ -1,7 +1,18 @@
 {
   "name": "cheapeats",
   "version": "1.0.0",
-  "description": "Find fast food deals near you",
+  "description": "AI-powered fast food deals discovery platform with location-based search, user accounts, and real-time deal generation",
+  "keywords": ["fast food", "deals", "ai", "restaurants", "food", "discounts", "coupons", "nextjs", "react"],
+  "author": "CheapEats Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/cheapeats",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cheapeats.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/cheapeats/issues"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
