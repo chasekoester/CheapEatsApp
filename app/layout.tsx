@@ -44,7 +44,7 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
-          <AutoDealGenerator />
+          {/* <AutoDealGenerator /> Temporarily disabled to prevent CLIENT_FETCH_ERROR */}
           <Navigation />
           <main style={{ minHeight: '100vh' }}>
             {children}
