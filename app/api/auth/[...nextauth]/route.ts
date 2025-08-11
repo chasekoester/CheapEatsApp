@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server'
+import NextAuth from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 
-export async function GET() {
-  return NextResponse.json({ message: 'API route working' })
+const authOptions: NextAuthOptions = {
+  providers: [],
+  secret: process.env.NEXTAUTH_SECRET || "development-secret",
 }
 
-export async function POST() {
-  return NextResponse.json({ message: 'API route working' })
-}
+const handler = NextAuth(authOptions)
+
+export { handler as GET, handler as POST }
