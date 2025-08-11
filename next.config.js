@@ -58,10 +58,6 @@ const nextConfig = {
     return config
   },
 
-  // Environment variables validation
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
 }
 
 module.exports = nextConfig
