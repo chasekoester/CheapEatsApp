@@ -1,5 +1,6 @@
 'use client'
 
+import { SessionProvider } from 'next-auth/react'
 import { ReactNode } from 'react'
 
 interface AuthProviderProps {
@@ -7,6 +8,13 @@ interface AuthProviderProps {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  // Temporarily disabled NextAuth SessionProvider to fix CLIENT_FETCH_ERROR
-  return <>{children}</>
+  return (
+    <SessionProvider
+      basePath="/api/auth"
+      refetchInterval={300}
+      refetchOnWindowFocus={false}
+    >
+      {children}
+    </SessionProvider>
+  )
 }
