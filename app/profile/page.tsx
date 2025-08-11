@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react' // Temporarily disabled
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -37,7 +37,8 @@ interface Deal {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const session = null // Temporarily disabled
+  const status = 'unauthenticated'
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
