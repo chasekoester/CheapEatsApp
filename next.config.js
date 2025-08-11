@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static site generation for better performance
-  output: 'export',
-  trailingSlash: true,
-  images: {
-    unoptimized: true
-  },
+  // Conditional output based on environment
+  ...(process.env.NODE_ENV === 'production' && process.env.STATIC_EXPORT === 'true'
+    ? {
+        output: 'export',
+        trailingSlash: true,
+        images: { unoptimized: true }
+      }
+    : {}),
   
   // Security headers
   async headers() {
