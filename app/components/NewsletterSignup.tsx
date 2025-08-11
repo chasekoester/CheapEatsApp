@@ -1,16 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useMockSession } from '../providers/AuthProvider'
+import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
-  let session = null
-  try {
-    const sessionData = useSession()
-    session = sessionData.data
-  } catch (error) {
-    console.log('NextAuth error handled in newsletter:', error)
-  }
+  const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)

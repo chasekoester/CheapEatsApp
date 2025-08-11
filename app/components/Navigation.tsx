@@ -2,19 +2,10 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useMockSession } from '../providers/AuthProvider'
-
-// Mock sign in/out functions to prevent CLIENT_FETCH_ERROR
-const mockSignIn = () => {
-  console.log('Mock sign in - no network requests')
-}
-
-const mockSignOut = () => {
-  console.log('Mock sign out - no network requests')
-}
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
-  const { data: session, status } = useMockSession()
+  const { data: session, status } = useSession()
 
   return (
     <nav style={{
@@ -147,7 +138,7 @@ export default function Navigation() {
                 </Link>
               )}
               <button
-                onClick={() => mockSignOut()}
+                onClick={() => signOut()}
                 style={{
                   fontSize: 'clamp(14px, 3vw, 16px)',
                   fontWeight: '500',
@@ -173,7 +164,7 @@ export default function Navigation() {
             </div>
           ) : (
             <button
-              onClick={() => mockSignIn()}
+              onClick={() => signIn('google')}
               style={{
                 fontSize: 'clamp(14px, 3vw, 16px)',
                 fontWeight: '500',
@@ -195,7 +186,7 @@ export default function Navigation() {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(66, 133, 244, 0.3)'
               }}
             >
-              Sign In
+              Sign In with Google
             </button>
           )}
         </div>
