@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession({
+    required: false,
+  })
 
   return (
     <nav style={{
