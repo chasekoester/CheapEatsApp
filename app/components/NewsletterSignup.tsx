@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useMockSession } from '../providers/AuthProvider'
 
 export default function NewsletterSignup() {
   let session = null
