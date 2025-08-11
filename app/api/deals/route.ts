@@ -114,8 +114,25 @@ export async function GET(request: Request) {
       }, { status: 200 })
     }
 
+    // Deduplicate deals based on restaurant name and title
+    const deduplicatedDeals = deals.reduce((acc, deal) => {
+      const key = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}`
+
+      // Only keep the deal if we haven't seen this combination before
+      if (!acc.some(existingDeal => {
+        const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}`
+        return existingKey === key
+      })) {
+        acc.push(deal)
+      }
+
+      return acc
+    }, [] as typeof deals)
+
+    console.log(`🔄 Deduplicated deals: ${deals.length} → ${deduplicatedDeals.length}`)
+
     // Sort deals by distance and quality
-    const sortedDeals = deals.sort((a, b) => {
+    const sortedDeals = deduplicatedDeals.sort((a, b) => {
       // Primary sort: distance
       const distanceDiff = a.distance - b.distance
       if (Math.abs(distanceDiff) > 0.5) return distanceDiff
