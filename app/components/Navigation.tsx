@@ -7,6 +7,8 @@ export default function Navigation() {
   // Temporarily disabled NextAuth to debug CLIENT_FETCH_ERROR
   const session = null
   const status = 'unauthenticated'
+  const signIn = () => console.log('Sign in disabled for debugging')
+  const signOut = () => console.log('Sign out disabled for debugging')
 
   return (
     <nav style={{
