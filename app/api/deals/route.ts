@@ -40,7 +40,6 @@ export async function GET(request: Request) {
       // Default to a major city if no location provided
       const defaultCity = 'New York'
       location = locationCoordinates[defaultCity]
-      console.log(`📍 Using default location: ${defaultCity}`)
     }
 
     // ONLY use Google Sheets - no fallbacks
