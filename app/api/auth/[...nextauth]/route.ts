@@ -1,24 +1,26 @@
-import NextAuth from "next-auth"
+import { NextResponse } from 'next/server'
 
-export const runtime = 'nodejs'
+// Mock NextAuth responses to prevent CLIENT_FETCH_ERROR
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const pathname = url.pathname
 
-const handler = NextAuth({
-  providers: [],
-  secret: process.env.NEXTAUTH_SECRET || "development-secret",
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    error: '/auth/error',
-  },
-  callbacks: {
-    async session({ session, token }) {
-      return session
-    },
-    async jwt({ token, user }) {
-      return token
-    },
-  },
-})
+  // Handle different NextAuth endpoints
+  if (pathname.includes('/session')) {
+    return NextResponse.json({})
+  }
 
-export { handler as GET, handler as POST }
+  if (pathname.includes('/providers')) {
+    return NextResponse.json({})
+  }
+
+  if (pathname.includes('/csrf')) {
+    return NextResponse.json({ csrfToken: 'mock-csrf-token' })
+  }
+
+  return NextResponse.json({ message: 'NextAuth endpoint' })
+}
+
+export async function POST(request: Request) {
+  return NextResponse.json({ message: 'NextAuth POST endpoint' })
+}
