@@ -1,11 +1,16 @@
 import NextAuth from "next-auth"
-import type { NextAuthOptions } from "next-auth"
 
-const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [],
-  secret: process.env.NEXTAUTH_SECRET || "development-secret",
-}
-
-const handler = NextAuth(authOptions)
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
+  callbacks: {
+    async session({ session }) {
+      return session
+    },
+    async jwt({ token }) {
+      return token
+    },
+  },
+})
 
 export { handler as GET, handler as POST }
