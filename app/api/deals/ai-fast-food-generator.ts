@@ -30,7 +30,7 @@ export class AIFastFoodGenerator {
   /**
    * Generate 50-100 AI-powered fast food deals
    */
-  async generateFastFoodDeals(location: { latitude: number; longitude: number }, count: number = 75): Promise<Deal[]> {
+  async generateFastFoodDeals(location: { latitude: number; longitude: number }, count: number = 100): Promise<Deal[]> {
     try {
       console.log(`🤖 Generating ${count} AI-powered fast food deals...`)
 
