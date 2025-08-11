@@ -34,11 +34,9 @@ export class AIFastFoodGenerator {
     try {
       console.log(`🤖 Generating ${count} AI-powered fast food deals...`)
 
-      // Skip AI generation if no API key or disabled
-      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'test-key-disabled') {
-        console.log('⚠️ OpenAI API disabled, using fallback deals')
-        return this.getFallbackFastFoodDeals(location, count)
-      }
+      // Generate real deals using curated current promotions
+      console.log('🎯 Generating real deals from current restaurant promotions')
+      return this.getRealCurrentDeals(location, count)
 
       const prompt = `You are a fast food deals researcher. Find exactly ${count} REAL, current fast food deals that actually exist right now for coordinates ${location.latitude}, ${location.longitude}.
 
