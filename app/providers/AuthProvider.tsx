@@ -2,6 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { ReactNode, useEffect } from 'react'
+import NextAuthErrorBoundary from '../components/NextAuthErrorBoundary'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -26,13 +27,15 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   return (
-    <SessionProvider
-      basePath="/api/auth"
-      refetchInterval={0}
-      refetchOnWindowFocus={false}
-      refetchWhenOffline={false}
-    >
-      {children}
-    </SessionProvider>
+    <NextAuthErrorBoundary>
+      <SessionProvider
+        basePath="/api/auth"
+        refetchInterval={0}
+        refetchOnWindowFocus={false}
+        refetchWhenOffline={false}
+      >
+        {children}
+      </SessionProvider>
+    </NextAuthErrorBoundary>
   )
 }
