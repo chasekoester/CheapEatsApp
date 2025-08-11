@@ -1,16 +1,10 @@
-import NextAuth from "next-auth"
+import { NextResponse } from 'next/server'
 
-const handler = NextAuth({
-  providers: [],
-  secret: process.env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
-  callbacks: {
-    async session({ session }) {
-      return session
-    },
-    async jwt({ token }) {
-      return token
-    },
-  },
-})
+// Temporarily disabled NextAuth to debug CLIENT_FETCH_ERROR
+export async function GET() {
+  return NextResponse.json({ message: 'NextAuth temporarily disabled' })
+}
 
-export { handler as GET, handler as POST }
+export async function POST() {
+  return NextResponse.json({ message: 'NextAuth temporarily disabled' })
+}
