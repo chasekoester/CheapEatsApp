@@ -12,6 +12,7 @@ const handler = NextAuth({
   session: {
     strategy: 'jwt',
   },
+  trustHost: true,
 })
 
 export { handler as GET, handler as POST }
