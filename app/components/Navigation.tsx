@@ -16,6 +16,9 @@ export default function Navigation() {
     status = sessionData.status
   } catch (error) {
     console.log('NextAuth session error handled:', error)
+    // Fallback to unauthenticated state on any error
+    session = null
+    status = 'unauthenticated'
   }
 
   return (
