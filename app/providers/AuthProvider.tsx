@@ -1,13 +1,30 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
+  // Add global error handler for NextAuth fetch errors
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('Failed to fetch') ||
+          event.reason?.toString()?.includes('CLIENT_FETCH_ERROR')) {
+        console.log('NextAuth CLIENT_FETCH_ERROR handled globally:', event.reason)
+        event.preventDefault() // Prevent the error from bubbling up
+      }
+    }
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+    }
+  }, [])
+
   return (
     <SessionProvider
       basePath="/api/auth"
