@@ -18,6 +18,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Global error handler for fetch errors
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && (
+                  event.reason.message?.includes('Failed to fetch') ||
+                  event.reason.toString().includes('Failed to fetch') ||
+                  event.reason.message?.includes('CLIENT_FETCH_ERROR')
+                )) {
+                  console.warn('Global fetch error handled:', event.reason.message || event.reason);
+                  event.preventDefault();
+                }
+              });
+
+              // Global error handler for script errors
+              window.addEventListener('error', function(event) {
+                if (event.message?.includes('Failed to fetch')) {
+                  console.warn('Global script error handled:', event.message);
+                  event.preventDefault();
+                }
+              });
+            `,
+          }}
+        />
         <AuthProvider>
           <AutoDealGenerator />
           <Navigation />
