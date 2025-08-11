@@ -114,13 +114,13 @@ export async function GET(request: Request) {
       }, { status: 200 })
     }
 
-    // Deduplicate deals based on restaurant name and title
+    // Light deduplication - only remove exact duplicates, allow variety
     const deduplicatedDeals = deals.reduce((acc, deal) => {
-      const key = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}`
+      const key = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}-${deal.dealPrice?.toLowerCase().trim()}`
 
-      // Only keep the deal if we haven't seen this combination before
+      // Only remove if it's an EXACT duplicate (same restaurant, title, AND price)
       if (!acc.some(existingDeal => {
-        const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}`
+        const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}-${existingDeal.dealPrice?.toLowerCase().trim()}`
         return existingKey === key
       })) {
         acc.push(deal)
