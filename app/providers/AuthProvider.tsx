@@ -11,8 +11,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   return (
     <SessionProvider
       basePath="/api/auth"
-      refetchInterval={300}
+      refetchInterval={0}
       refetchOnWindowFocus={false}
+      refetchWhenOffline={false}
     >
       {children}
     </SessionProvider>
