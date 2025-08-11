@@ -426,9 +426,6 @@ export default function DealsPage() {
           },
         })
 
-        console.log('📊 API Response status:', response.status)
-        console.log('📊 API Response headers:', Object.fromEntries(response.headers.entries()))
-
         clearTimeout(timeoutId)
 
         if (!response.ok) {
@@ -440,15 +437,7 @@ export default function DealsPage() {
 
         const data = await response.json()
 
-        console.log('📊 API Response data:', {
-          success: data.success,
-          dealsCount: data.deals?.length || 0,
-          source: data.source,
-          firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
-        })
-
         if (data.deals && Array.isArray(data.deals)) {
-          console.log('✅ Setting deals:', data.deals.length, 'deals from', data.source)
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
@@ -462,14 +451,25 @@ export default function DealsPage() {
         }
       } catch (fetchError: any) {
         clearTimeout(timeoutId)
+
+        // Handle different types of fetch errors
+        let errorMessage = 'Failed to load deals. Please try again.'
+
         if (fetchError.name === 'AbortError') {
-          console.warn('Request timed out, using fallback deals')
-        } else {
-          console.warn('API request failed:', fetchError)
+          errorMessage = 'Request timed out. Please check your connection and try again.'
+        } else if (fetchError.message?.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection.'
+        } else if (fetchError.message?.includes('HTTP error')) {
+          errorMessage = 'Server error occurred. Please try again later.'
         }
-        
-        // No fallback deals - throw error to show proper error message
-        throw fetchError
+
+        console.warn('API request failed:', fetchError.message || fetchError)
+
+        // Set a user-friendly error message instead of throwing
+        setError(errorMessage)
+        setLoadingProgress(100)
+        setLoadingPhase('complete')
+        return // Exit early instead of throwing
       }
     } catch (error: any) {
       console.error('Error loading deals:', error)
