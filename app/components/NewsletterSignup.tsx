@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
-  const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -27,7 +25,7 @@ export default function NewsletterSignup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          name: name || (session?.user?.name),
+          name: name || 'Anonymous',
           action: 'subscribe'
         })
       })
@@ -91,33 +89,31 @@ export default function NewsletterSignup() {
         flexDirection: 'column',
         gap: '1rem'
       }}>
-        {!session?.user && (
-          <input
-            type="text"
-            placeholder="Your name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{
-              padding: '1rem 1.5rem',
-              borderRadius: '16px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              background: 'rgba(255, 255, 255, 0.1)',
-              color: 'white',
-              fontSize: '1rem',
-              fontWeight: '500',
-              backdropFilter: 'blur(10px)',
-              transition: 'all 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.background = 'rgba(255, 255, 255, 0.2)'
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)'
-            }}
-            onBlur={(e) => {
-              e.target.style.background = 'rgba(255, 255, 255, 0.1)'
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
-            }}
-          />
-        )}
+        <input
+          type="text"
+          placeholder="Your name (optional)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{
+            padding: '1rem 1.5rem',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            background: 'rgba(255, 255, 255, 0.1)',
+            color: 'white',
+            fontSize: '1rem',
+            fontWeight: '500',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease'
+          }}
+          onFocus={(e) => {
+            e.target.style.background = 'rgba(255, 255, 255, 0.2)'
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)'
+          }}
+          onBlur={(e) => {
+            e.target.style.background = 'rgba(255, 255, 255, 0.1)'
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+          }}
+        />
 
         <input
           type="email"

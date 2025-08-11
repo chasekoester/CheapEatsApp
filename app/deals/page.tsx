@@ -45,17 +45,23 @@ const calculateDiscountPercent = (originalPrice?: string, dealPrice?: string): n
   const original = parsePrice(originalPrice || '0')
   const deal = parsePrice(dealPrice || '0')
 
-  // If deal price is $0 (free), it's 100% off
+  // If either price is invalid, return 0
+  if (isNaN(original) || isNaN(deal)) return 0
+
+  // If deal price is $0 (free), it's 100% off only if original price exists
   if (deal === 0 && original > 0) return 100
 
   // If original price is 0 or negative, no valid discount
   if (original <= 0) return 0
 
-  // Calculate percentage
-  const discount = Math.round(((original - deal) / original) * 100)
+  // If deal price is greater than or equal to original, no discount
+  if (deal >= original) return 0
 
-  // Cap at 100% and don't allow negative discounts
-  return Math.max(0, Math.min(100, discount))
+  // Calculate percentage and ensure it's valid
+  const discount = ((original - deal) / original) * 100
+
+  // Return rounded percentage, capped between 0 and 100
+  return Math.max(0, Math.min(100, Math.round(discount)))
 }
 
 // Comprehensive fast food chain logo database with reliable URLs
@@ -234,7 +240,13 @@ if (bestMatch && bestMatch in FAST_FOOD_LOGOS) {
 }
 
 export default function DealsPage() {
-  const { data: session } = useSession()
+  let session = null
+  try {
+    const sessionData = useSession()
+    session = sessionData.data
+  } catch (error) {
+    console.log('NextAuth error handled in deals page:', error)
+  }
   const [deals, setDeals] = useState<(Deal & { distance: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<'initial' | 'ai_generating' | 'processing' | 'complete'>('initial')
@@ -414,9 +426,6 @@ export default function DealsPage() {
           },
         })
 
-        console.log('📊 API Response status:', response.status)
-        console.log('📊 API Response headers:', Object.fromEntries(response.headers.entries()))
-
         clearTimeout(timeoutId)
 
         if (!response.ok) {
@@ -428,15 +437,7 @@ export default function DealsPage() {
 
         const data = await response.json()
 
-        console.log('📊 API Response data:', {
-          success: data.success,
-          dealsCount: data.deals?.length || 0,
-          source: data.source,
-          firstDeal: data.deals?.[0]?.restaurantName || 'N/A'
-        })
-
         if (data.deals && Array.isArray(data.deals)) {
-          console.log('✅ Setting deals:', data.deals.length, 'deals from', data.source)
           setDeals(data.deals)
           setLoadingProgress(100)
           setLoadingPhase('complete')
@@ -450,14 +451,25 @@ export default function DealsPage() {
         }
       } catch (fetchError: any) {
         clearTimeout(timeoutId)
+
+        // Handle different types of fetch errors
+        let errorMessage = 'Failed to load deals. Please try again.'
+
         if (fetchError.name === 'AbortError') {
-          console.warn('Request timed out, using fallback deals')
-        } else {
-          console.warn('API request failed:', fetchError)
+          errorMessage = 'Request timed out. Please check your connection and try again.'
+        } else if (fetchError.message?.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection.'
+        } else if (fetchError.message?.includes('HTTP error')) {
+          errorMessage = 'Server error occurred. Please try again later.'
         }
-        
-        // No fallback deals - throw error to show proper error message
-        throw fetchError
+
+        console.warn('API request failed:', fetchError.message || fetchError)
+
+        // Set a user-friendly error message instead of throwing
+        setError(errorMessage)
+        setLoadingProgress(100)
+        setLoadingPhase('complete')
+        return // Exit early instead of throwing
       }
     } catch (error: any) {
       console.error('Error loading deals:', error)
@@ -496,8 +508,8 @@ export default function DealsPage() {
       case 'price':
         return parsePrice(a.dealPrice || '0') - parsePrice(b.dealPrice || '0')
       case 'savings':
-        return (b.discountPercent || calculateDiscountPercent(b.originalPrice, b.dealPrice)) -
-               (a.discountPercent || calculateDiscountPercent(a.originalPrice, a.dealPrice))
+        return calculateDiscountPercent(b.originalPrice, b.dealPrice) -
+               calculateDiscountPercent(a.originalPrice, a.dealPrice)
       case 'rating':
         return ((b.qualityScore || 75) / 20) - ((a.qualityScore || 75) / 20)
       case 'distance':
@@ -788,7 +800,7 @@ export default function DealsPage() {
         marginBottom: '2rem'
       }}>
         {sortedDeals.map((deal) => {
-          const discountPercent = deal.discountPercent || calculateDiscountPercent(deal.originalPrice, deal.dealPrice)
+          const discountPercent = calculateDiscountPercent(deal.originalPrice, deal.dealPrice)
 
           return (
             <div
@@ -895,7 +907,7 @@ export default function DealsPage() {
               <div style={{
                 padding: 'clamp(1.25rem, 4vw, 1.5rem)'
               }}>
-                {/* Distance & Rating */}
+                {/* Rating */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -910,20 +922,13 @@ export default function DealsPage() {
                     alignItems: 'center',
                     gap: '0.25rem'
                   }}>
-                    📍 {deal.distance ? deal.distance.toFixed(1) + ' mi' : 'N/A'}
-                  </span>
-                  <span style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem'
-                  }}>
                     ⭐ {((deal.qualityScore || 75) / 20).toFixed(1)}
                   </span>
                 </div>
 
                 {/* Deal Title */}
                 <h3 style={{
-                  fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
+                  fontSize: 'clamp(1.35rem, 4.5vw, 1.6rem)',
                   fontWeight: '600',
                   color: '#1e293b',
                   marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
@@ -1064,7 +1069,7 @@ export default function DealsPage() {
                       getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    �� Get Directions
+                    📍 Get Directions
                   </button>
                 </div>
               </div>
@@ -1157,7 +1162,7 @@ export default function DealsPage() {
                 </span>
               </div>
               <div style={{ fontSize: '1rem', color: '#dc2626', fontWeight: '600' }}>
-                Save ${(parsePrice(selectedDeal.originalPrice || '0') - parsePrice(selectedDeal.dealPrice || '0')).toFixed(2)} ({selectedDeal.discountPercent || calculateDiscountPercent(selectedDeal.originalPrice, selectedDeal.dealPrice)}% off)
+                Save ${(parsePrice(selectedDeal.originalPrice || '0') - parsePrice(selectedDeal.dealPrice || '0')).toFixed(2)} ({calculateDiscountPercent(selectedDeal.originalPrice, selectedDeal.dealPrice)}% off)
               </div>
             </div>
 
@@ -1217,7 +1222,7 @@ export default function DealsPage() {
                   gap: '0.5rem'
                 }}
               >
-                🧭 Get Directions
+                📍 Get Directions
               </button>
             </div>
           </div>

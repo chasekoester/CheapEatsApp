@@ -23,7 +23,6 @@ const locationCoordinates: Record<string, { latitude: number; longitude: number 
 
 export async function GET(request: Request) {
   try {
-    console.log('🚀 Fast Food Deals API called')
 
     // Extract user location from query parameters
     const url = new URL(request.url)
@@ -37,12 +36,10 @@ export async function GET(request: Request) {
 
     if (userLat && userLng && !isNaN(userLat) && !isNaN(userLng)) {
       location = { latitude: userLat, longitude: userLng }
-      console.log(`📍 User location: ${userLat}, ${userLng} (radius: ${radius} miles)`)
     } else {
       // Default to a major city if no location provided
       const defaultCity = 'New York'
       location = locationCoordinates[defaultCity]
-      console.log(`📍 Using default location: ${defaultCity}`)
     }
 
     // ONLY use Google Sheets - no fallbacks
@@ -50,7 +47,6 @@ export async function GET(request: Request) {
     let deals: any[] = []
     let dataSource = 'Google Spreadsheet'
 
-    console.log('📊 Reading ONLY from Google Spreadsheet...')
 
     if (!(await sheetsService.isConfigured())) {
       console.error('❌ Google Sheets not configured!')
@@ -63,10 +59,8 @@ export async function GET(request: Request) {
 
     try {
       const sheetDeals = await sheetsService.getActiveDeals()
-      console.log(`📋 Retrieved ${sheetDeals.length} deals from spreadsheet`)
 
       if (sheetDeals.length === 0) {
-        console.warn('⚠️ No deals found in spreadsheet')
         return NextResponse.json({
           success: true,
           message: 'No deals currently available. Please check back later.',
@@ -92,7 +86,6 @@ export async function GET(request: Request) {
 
       // Show ALL spreadsheet deals - no filtering by distance or count
       deals = dealsWithDistance.sort((a, b) => a.distance - b.distance)
-      console.log(`✅ Using ALL ${deals.length} deals from Google Spreadsheet`)
 
     } catch (error) {
       console.error('❌ Failed to read from Google Sheets:', error)
@@ -114,8 +107,44 @@ export async function GET(request: Request) {
       }, { status: 200 })
     }
 
+    // Smart deduplication - remove duplicates but allow restaurant variety
+    const deduplicatedDeals = deals.reduce((acc, deal) => {
+      // Check for exact duplicates (same restaurant + title + price)
+      const exactKey = `${deal.restaurantName?.toLowerCase().trim()}-${deal.title?.toLowerCase().trim()}-${deal.dealPrice?.toLowerCase().trim()}`
+
+      const hasExactDuplicate = acc.some((existingDeal: typeof deal) => {
+        const existingKey = `${existingDeal.restaurantName?.toLowerCase().trim()}-${existingDeal.title?.toLowerCase().trim()}-${existingDeal.dealPrice?.toLowerCase().trim()}`
+        return existingKey === exactKey
+      })
+
+      // Check for very similar deals at same restaurant (similar titles)
+      const hasSimilarDeal = acc.some((existingDeal: typeof deal) => {
+        if (existingDeal.restaurantName?.toLowerCase().trim() !== deal.restaurantName?.toLowerCase().trim()) {
+          return false
+        }
+
+        const existingTitle = existingDeal.title?.toLowerCase().trim() || ''
+        const currentTitle = deal.title?.toLowerCase().trim() || ''
+
+        // Check for highly similar titles (80%+ word overlap)
+        const existingWords = new Set(existingTitle.split(/\s+/))
+        const currentWords = new Set(currentTitle.split(/\s+/))
+        const intersection = new Set([...existingWords].filter(x => currentWords.has(x)))
+        const similarity = intersection.size / Math.max(existingWords.size, currentWords.size)
+
+        return similarity > 0.8
+      })
+
+      if (!hasExactDuplicate && !hasSimilarDeal) {
+        acc.push(deal)
+      }
+
+      return acc
+    }, [] as typeof deals)
+
+
     // Sort deals by distance and quality
-    const sortedDeals = deals.sort((a, b) => {
+    const sortedDeals = deduplicatedDeals.sort((a: typeof deals[0], b: typeof deals[0]) => {
       // Primary sort: distance
       const distanceDiff = a.distance - b.distance
       if (Math.abs(distanceDiff) > 0.5) return distanceDiff
@@ -124,7 +153,6 @@ export async function GET(request: Request) {
       return (b.qualityScore || 0) - (a.qualityScore || 0)
     })
 
-    console.log(`✅ Successfully served ${sortedDeals.length} deals from ${dataSource}`)
 
     return NextResponse.json({
       success: true,
@@ -139,9 +167,9 @@ export async function GET(request: Request) {
       },
       stats: {
         totalDeals: sortedDeals.length,
-        averageQuality: Math.round(sortedDeals.reduce((sum, deal) => sum + (deal.qualityScore || 0), 0) / sortedDeals.length),
-        categories: [...new Set(sortedDeals.map(deal => deal.category))],
-        restaurants: [...new Set(sortedDeals.map(deal => deal.restaurantName))].length
+        averageQuality: Math.round(sortedDeals.reduce((sum: number, deal: typeof deals[0]) => sum + (deal.qualityScore || 0), 0) / sortedDeals.length),
+        categories: [...new Set(sortedDeals.map((deal: typeof deals[0]) => deal.category))],
+        restaurants: [...new Set(sortedDeals.map((deal: typeof deals[0]) => deal.restaurantName))].length
       }
     }, {
       headers: {

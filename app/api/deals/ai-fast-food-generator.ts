@@ -30,26 +30,28 @@ export class AIFastFoodGenerator {
   /**
    * Generate 50-100 AI-powered fast food deals
    */
-  async generateFastFoodDeals(location: { latitude: number; longitude: number }, count: number = 75): Promise<Deal[]> {
+  async generateFastFoodDeals(location: { latitude: number; longitude: number }, count: number = 100): Promise<Deal[]> {
     try {
       console.log(`🤖 Generating ${count} AI-powered fast food deals...`)
 
       // Skip AI generation if no API key or disabled
-      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'test-key-disabled') {
+      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'test-key-disabled' || process.env.OPENAI_API_KEY === 'demo-client-secret' || process.env.OPENAI_API_KEY.includes('placeholder')) {
         console.log('⚠️ OpenAI API disabled, using fallback deals')
         return this.getFallbackFastFoodDeals(location, count)
       }
 
       const prompt = `You are a fast food deals researcher. Find exactly ${count} REAL, current fast food deals that actually exist right now for coordinates ${location.latitude}, ${location.longitude}.
 
-Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
+Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 25).join(', ')}, and others.
 
 CRITICAL REQUIREMENTS:
 - Find ONLY deals that actually exist and are currently active
 - Each deal must be COMPLETELY UNIQUE - no duplicate or similar deals
-- Maximum 2 deals per restaurant chain
-- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks)
+- Maximum 3 deals per restaurant chain
+- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks, desserts)
 - Vary deal types significantly across restaurants
+- Include regional chains and specialty restaurants
+- Focus on variety over limiting restaurants
 
 Look for these types of REAL fast food deals that chains commonly offer:
 - App-exclusive promotions (McDonald's app deals, Burger King app offers)
@@ -227,9 +229,9 @@ Find similar REAL deals that these chains actually offer. Keep descriptions unde
         continue
       }
 
-      // Limit to 2 deals per restaurant
+      // Limit to 3 deals per restaurant
       const currentCount = restaurantCounts.get(restaurant) || 0
-      if (currentCount >= 2) {
+      if (currentCount >= 3) {
         continue
       }
 
@@ -377,6 +379,87 @@ Find similar REAL deals that these chains actually offer. Keep descriptions unde
           { title: "Happy Hour BOGO", description: "Buy one handcrafted drink, get one 50% off 3-6 PM", price: "BOGO 50%", original: "$5.95" },
           { title: "Free Drink on Birthday", description: "Free drink of any size on your birthday with app", price: "Free", original: "$5.95" },
           { title: "$2 Iced Coffee", description: "Grande iced coffee for $2 all day via mobile order", price: "$2.00", original: "$3.45" }
+        ]
+      },
+      {
+        chain: "Wendy's",
+        url: "https://www.wendys.com/offers",
+        deals: [
+          { title: "4 for $4 Deal", description: "Jr. cheeseburger, 4 nuggets, fries, and drink for $4", price: "$4.00", original: "$7.99" },
+          { title: "Free Frosty with App", description: "Free small Frosty with any purchase via mobile app", price: "Free", original: "$1.99" },
+          { title: "Baconator Combo $8.99", description: "Baconator, fries, and drink for $8.99", price: "$8.99", original: "$12.49" }
+        ]
+      },
+      {
+        chain: "Chipotle",
+        url: "https://www.chipotle.com/rewards",
+        deals: [
+          { title: "Free Chips & Guac", description: "Free chips and guacamole with any entrée purchase", price: "Free", original: "$2.95" },
+          { title: "BOGO Burrito Bowl", description: "Buy one bowl, get one free with app order on Tuesdays", price: "BOGO", original: "$9.95" },
+          { title: "Free Delivery $10+", description: "Free delivery on orders $10+ for rewards members", price: "Free", original: "$2.99" }
+        ]
+      },
+      {
+        chain: "Domino's",
+        url: "https://www.dominos.com/pages/order/#!/menu/",
+        deals: [
+          { title: "Mix & Match 2 for $6.99", description: "2 or more items for $6.99 each: pizza, pasta, sandwiches", price: "$6.99", original: "$10.99" },
+          { title: "Large 3-Topping $7.99", description: "Large pizza with up to 3 toppings for carryout", price: "$7.99", original: "$15.99" },
+          { title: "Free Pizza After 6 Orders", description: "Order 6 times, get a free medium 2-topping pizza", price: "Free", original: "$12.99" }
+        ]
+      },
+      {
+        chain: "Chick-fil-A",
+        url: "https://www.chick-fil-a.com/one",
+        deals: [
+          { title: "Free Breakfast Item", description: "Free chicken biscuit or hash browns with app signup", price: "Free", original: "$3.99" },
+          { title: "8-Count Nuggets $4.95", description: "8-count chicken nuggets for $4.95 via mobile order", price: "$4.95", original: "$6.95" },
+          { title: "Kids Meal $3.99", description: "Kids meal with nuggets, fruit, and drink for $3.99", price: "$3.99", original: "$5.49" }
+        ]
+      },
+      {
+        chain: "Dunkin'",
+        url: "https://www.dunkindonuts.com/en/dd-perks",
+        deals: [
+          { title: "Free Donut Fridays", description: "Free classic donut with beverage purchase every Friday", price: "Free", original: "$1.49" },
+          { title: "$2 Medium Coffee", description: "Medium hot or iced coffee for $2 all day", price: "$2.00", original: "$2.89" },
+          { title: "Happy Hour 3-6 PM", description: "BOGO on select handcrafted drinks 3-6 PM daily", price: "BOGO", original: "$4.99" }
+        ]
+      },
+      {
+        chain: "Sonic",
+        url: "https://www.sonicdrivein.com/deals",
+        deals: [
+          { title: "Half-Price Drinks & Slushes", description: "50% off all drinks and slushes 2-4 PM daily", price: "50% off", original: "$2.99" },
+          { title: "Popcorn Chicken $1.99", description: "Large popcorn chicken for $1.99 with app order", price: "$1.99", original: "$3.99" },
+          { title: "Corn Dog Day $1", description: "Corn dogs for $1 each all day on National Corn Dog Day", price: "$1.00", original: "$2.49" }
+        ]
+      },
+      {
+        chain: "Arby's",
+        url: "https://arbys.com/deals",
+        deals: [
+          { title: "2 for $6 Gyros", description: "Two classic gyros for $6 via mobile app", price: "$6.00", original: "$11.98" },
+          { title: "Loaded Curly Fries $3.99", description: "Loaded curly fries with cheese and bacon for $3.99", price: "$3.99", original: "$5.99" },
+          { title: "Free Shake with Meal", description: "Free regular shake with any sandwich combo", price: "Free", original: "$2.99" }
+        ]
+      },
+      {
+        chain: "Five Guys",
+        url: "https://www.fiveguys.com",
+        deals: [
+          { title: "Free Fries Friday", description: "Free regular fries with any burger purchase on Fridays", price: "Free", original: "$4.99" },
+          { title: "Burger + Drink $12.99", description: "Any burger with medium drink for $12.99", price: "$12.99", original: "$16.98" },
+          { title: "Double Burger Special", description: "Little double cheeseburger for $8.99", price: "$8.99", original: "$11.49" }
+        ]
+      },
+      {
+        chain: "Panera",
+        url: "https://www.panerabread.com/en-us/mypanera/rewards.html",
+        deals: [
+          { title: "Free Pastry with Coffee", description: "Free pastry with any coffee or espresso drink", price: "Free", original: "$2.99" },
+          { title: "You Pick 2 for $9.99", description: "Half sandwich, cup of soup, or salad for $9.99", price: "$9.99", original: "$12.99" },
+          { title: "Free Delivery $15+", description: "Free delivery on orders $15+ for MyPanera members", price: "Free", original: "$2.99" }
         ]
       }
     ]

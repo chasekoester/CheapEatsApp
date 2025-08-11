@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       try {
         const cityDeals = await aiGenerator.generateFastFoodDeals(
           { latitude: city.latitude, longitude: city.longitude },
-          25 // Generate 25 deals per city
+          35 // Generate 35 deals per city for more variety
         )
 
         // Convert to SheetDeal format
