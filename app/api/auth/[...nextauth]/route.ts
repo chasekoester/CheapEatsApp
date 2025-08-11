@@ -1,8 +1,9 @@
-import NextAuth from 'next-auth'
+import { NextResponse } from 'next/server'
 
-const handler = NextAuth({
-  providers: [],
-  secret: 'development-secret-key',
-})
+export async function GET() {
+  return NextResponse.json({ message: 'API route working' })
+}
 
-export { handler as GET, handler as POST }
+export async function POST() {
+  return NextResponse.json({ message: 'API route working' })
+}
