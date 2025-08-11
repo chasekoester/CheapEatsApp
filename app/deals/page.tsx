@@ -51,6 +51,9 @@ const calculateDiscountPercent = (originalPrice?: string, dealPrice?: string): n
   // If original price is 0 or negative, no valid discount
   if (original <= 0) return 0
 
+  // If deal price is greater than or equal to original, no discount
+  if (deal >= original) return 0
+
   // Calculate percentage
   const discount = Math.round(((original - deal) / original) * 100)
 
@@ -895,7 +898,7 @@ export default function DealsPage() {
               <div style={{
                 padding: 'clamp(1.25rem, 4vw, 1.5rem)'
               }}>
-                {/* Distance & Rating */}
+                {/* Rating */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -905,13 +908,6 @@ export default function DealsPage() {
                   color: '#64748b',
                   fontWeight: '600'
                 }}>
-                  <span style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem'
-                  }}>
-                    📍 {deal.distance ? deal.distance.toFixed(1) + ' mi' : 'N/A'}
-                  </span>
                   <span style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1064,7 +1060,7 @@ export default function DealsPage() {
                       getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    �� Get Directions
+                    🧭 Get Directions
                   </button>
                 </div>
               </div>
