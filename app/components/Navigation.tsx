@@ -2,10 +2,11 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
-  const { data: session, status } = useSession()
+  // Temporarily disabled NextAuth to debug CLIENT_FETCH_ERROR
+  const session = null
+  const status = 'unauthenticated'
 
   return (
     <nav style={{
