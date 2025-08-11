@@ -4,7 +4,8 @@ import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
-  const { data: session } = useSession()
+  // Use static null session to prevent CLIENT_FETCH_ERROR
+  const session = null
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
