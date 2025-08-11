@@ -9,20 +9,36 @@ interface AuthProviderProps {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  // Add global error handler for NextAuth fetch errors
+  // Enhanced global error handler for NextAuth fetch errors
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      if (event.reason?.message?.includes('Failed to fetch') ||
-          event.reason?.toString()?.includes('CLIENT_FETCH_ERROR')) {
-        console.log('NextAuth CLIENT_FETCH_ERROR handled globally:', event.reason)
-        event.preventDefault() // Prevent the error from bubbling up
+      const reason = event.reason
+      if (reason && (
+        reason.message?.includes('Failed to fetch') ||
+        reason.message?.includes('CLIENT_FETCH_ERROR') ||
+        reason.toString().includes('Failed to fetch') ||
+        reason.toString().includes('CLIENT_FETCH_ERROR') ||
+        reason.name === 'TypeError' && reason.message?.includes('fetch')
+      )) {
+        console.log('NextAuth CLIENT_FETCH_ERROR suppressed:', reason.message || reason)
+        event.preventDefault()
+      }
+    }
+
+    const handleError = (event: ErrorEvent) => {
+      if (event.message?.includes('Failed to fetch') ||
+          event.message?.includes('CLIENT_FETCH_ERROR')) {
+        console.log('NextAuth error suppressed:', event.message)
+        event.preventDefault()
       }
     }
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    window.addEventListener('error', handleError)
 
     return () => {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+      window.removeEventListener('error', handleError)
     }
   }, [])
 
