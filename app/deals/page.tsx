@@ -45,7 +45,10 @@ const calculateDiscountPercent = (originalPrice?: string, dealPrice?: string): n
   const original = parsePrice(originalPrice || '0')
   const deal = parsePrice(dealPrice || '0')
 
-  // If deal price is $0 (free), it's 100% off
+  // If either price is invalid, return 0
+  if (isNaN(original) || isNaN(deal)) return 0
+
+  // If deal price is $0 (free), it's 100% off only if original price exists
   if (deal === 0 && original > 0) return 100
 
   // If original price is 0 or negative, no valid discount
@@ -54,11 +57,11 @@ const calculateDiscountPercent = (originalPrice?: string, dealPrice?: string): n
   // If deal price is greater than or equal to original, no discount
   if (deal >= original) return 0
 
-  // Calculate percentage
-  const discount = Math.round(((original - deal) / original) * 100)
+  // Calculate percentage and ensure it's valid
+  const discount = ((original - deal) / original) * 100
 
-  // Cap at 100% and don't allow negative discounts
-  return Math.max(0, Math.min(100, discount))
+  // Return rounded percentage, capped between 0 and 100
+  return Math.max(0, Math.min(100, Math.round(discount)))
 }
 
 // Comprehensive fast food chain logo database with reliable URLs
@@ -791,7 +794,7 @@ export default function DealsPage() {
         marginBottom: '2rem'
       }}>
         {sortedDeals.map((deal) => {
-          const discountPercent = deal.discountPercent || calculateDiscountPercent(deal.originalPrice, deal.dealPrice)
+          const discountPercent = calculateDiscountPercent(deal.originalPrice, deal.dealPrice)
 
           return (
             <div
