@@ -5,7 +5,17 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Navigation() {
-  const { data: session, status } = useSession()
+  let session = null
+  let status = 'unauthenticated'
+
+  try {
+    const sessionData = useSession()
+    session = sessionData.data
+    status = sessionData.status
+  } catch (error) {
+    console.log('NextAuth session error handled:', error)
+    // Fallback to unauthenticated state
+  }
 
   return (
     <nav style={{
