@@ -21,6 +21,16 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              // Enhanced debugging for CLIENT_FETCH_ERROR
+              const originalFetch = window.fetch;
+              window.fetch = function(...args) {
+                console.log('NextAuth fetch request:', args[0], args[1]);
+                return originalFetch.apply(this, args).catch(error => {
+                  console.error('NextAuth fetch failed:', error, 'URL:', args[0]);
+                  throw error;
+                });
+              };
+
               // Global error handler for fetch errors
               window.addEventListener('unhandledrejection', function(event) {
                 if (event.reason && (
@@ -28,7 +38,11 @@ export default function RootLayout({
                   event.reason.toString().includes('Failed to fetch') ||
                   event.reason.message?.includes('CLIENT_FETCH_ERROR')
                 )) {
-                  console.warn('Global fetch error handled:', event.reason.message || event.reason);
+                  console.error('CLIENT_FETCH_ERROR details:', {
+                    message: event.reason.message,
+                    stack: event.reason.stack,
+                    reason: event.reason
+                  });
                   event.preventDefault();
                 }
               });
@@ -36,7 +50,7 @@ export default function RootLayout({
               // Global error handler for script errors
               window.addEventListener('error', function(event) {
                 if (event.message?.includes('Failed to fetch')) {
-                  console.warn('Global script error handled:', event.message);
+                  console.error('Script fetch error:', event);
                   event.preventDefault();
                 }
               });
