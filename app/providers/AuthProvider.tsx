@@ -9,7 +9,12 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   return (
-    <SessionProvider>
+    <SessionProvider
+      basePath="/api/auth"
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+      refetchWhenOffline={false}
+    >
       {children}
     </SessionProvider>
   )
