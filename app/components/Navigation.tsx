@@ -2,24 +2,19 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { useMockSession } from '../providers/AuthProvider'
+
+// Mock sign in/out functions to prevent CLIENT_FETCH_ERROR
+const mockSignIn = () => {
+  console.log('Mock sign in - no network requests')
+}
+
+const mockSignOut = () => {
+  console.log('Mock sign out - no network requests')
+}
 
 export default function Navigation() {
-  let session = null
-  let status = 'unauthenticated'
-
-  try {
-    const sessionData = useSession({
-      required: false,
-    })
-    session = sessionData.data
-    status = sessionData.status
-  } catch (error) {
-    console.log('NextAuth session error handled:', error)
-    // Fallback to unauthenticated state on any error
-    session = null
-    status = 'unauthenticated'
-  }
+  const { data: session, status } = useMockSession()
 
   return (
     <nav style={{
