@@ -147,7 +147,7 @@ export default function Navigation() {
                 </Link>
               )}
               <button
-                onClick={() => signOut()}
+                onClick={() => mockSignOut()}
                 style={{
                   fontSize: 'clamp(14px, 3vw, 16px)',
                   fontWeight: '500',
@@ -173,7 +173,7 @@ export default function Navigation() {
             </div>
           ) : (
             <button
-              onClick={() => signIn('google')}
+              onClick={() => mockSignIn()}
               style={{
                 fontSize: 'clamp(14px, 3vw, 16px)',
                 fontWeight: '500',
