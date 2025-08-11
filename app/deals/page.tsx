@@ -919,7 +919,7 @@ export default function DealsPage() {
 
                 {/* Deal Title */}
                 <h3 style={{
-                  fontSize: 'clamp(1.2rem, 4vw, 1.4rem)',
+                  fontSize: 'clamp(1.35rem, 4.5vw, 1.6rem)',
                   fontWeight: '600',
                   color: '#1e293b',
                   marginBottom: 'clamp(0.5rem, 2vw, 0.75rem)',
@@ -1060,7 +1060,7 @@ export default function DealsPage() {
                       getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    🗺️ Get Directions
+                    📍 Get Directions
                   </button>
                 </div>
               </div>
@@ -1213,7 +1213,7 @@ export default function DealsPage() {
                   gap: '0.5rem'
                 }}
               >
-                🗺️ Get Directions
+                📍 Get Directions
               </button>
             </div>
           </div>
