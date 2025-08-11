@@ -42,14 +42,16 @@ export class AIFastFoodGenerator {
 
       const prompt = `You are a fast food deals researcher. Find exactly ${count} REAL, current fast food deals that actually exist right now for coordinates ${location.latitude}, ${location.longitude}.
 
-Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 15).join(', ')}, and others.
+Research and find actual deals from these popular chains: ${this.fastFoodChains.slice(0, 25).join(', ')}, and others.
 
 CRITICAL REQUIREMENTS:
 - Find ONLY deals that actually exist and are currently active
 - Each deal must be COMPLETELY UNIQUE - no duplicate or similar deals
-- Maximum 2 deals per restaurant chain
-- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks)
+- Maximum 3 deals per restaurant chain
+- Each deal must target different meal types (breakfast, lunch, dinner, drinks, snacks, desserts)
 - Vary deal types significantly across restaurants
+- Include regional chains and specialty restaurants
+- Focus on variety over limiting restaurants
 
 Look for these types of REAL fast food deals that chains commonly offer:
 - App-exclusive promotions (McDonald's app deals, Burger King app offers)
@@ -227,9 +229,9 @@ Find similar REAL deals that these chains actually offer. Keep descriptions unde
         continue
       }
 
-      // Limit to 2 deals per restaurant
+      // Limit to 3 deals per restaurant
       const currentCount = restaurantCounts.get(restaurant) || 0
-      if (currentCount >= 2) {
+      if (currentCount >= 3) {
         continue
       }
 
