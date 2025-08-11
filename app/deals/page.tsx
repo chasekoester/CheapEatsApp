@@ -502,8 +502,8 @@ export default function DealsPage() {
       case 'price':
         return parsePrice(a.dealPrice || '0') - parsePrice(b.dealPrice || '0')
       case 'savings':
-        return (b.discountPercent || calculateDiscountPercent(b.originalPrice, b.dealPrice)) -
-               (a.discountPercent || calculateDiscountPercent(a.originalPrice, a.dealPrice))
+        return calculateDiscountPercent(b.originalPrice, b.dealPrice) -
+               calculateDiscountPercent(a.originalPrice, a.dealPrice)
       case 'rating':
         return ((b.qualityScore || 75) / 20) - ((a.qualityScore || 75) / 20)
       case 'distance':
@@ -876,7 +876,7 @@ export default function DealsPage() {
                         e.currentTarget.style.transform = 'scale(1)'
                       }}
                     >
-                      {favoriteDeals.includes(deal.id) ? '❤��' : '🤍'}
+                      {favoriteDeals.includes(deal.id) ? '❤️' : '🤍'}
                     </button>
                   )}
 
