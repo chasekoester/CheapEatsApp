@@ -876,7 +876,7 @@ export default function DealsPage() {
                         e.currentTarget.style.transform = 'scale(1)'
                       }}
                     >
-                      {favoriteDeals.includes(deal.id) ? '❤️' : '🤍'}
+                      {favoriteDeals.includes(deal.id) ? '❤��' : '🤍'}
                     </button>
                   )}
 
@@ -1156,7 +1156,7 @@ export default function DealsPage() {
                 </span>
               </div>
               <div style={{ fontSize: '1rem', color: '#dc2626', fontWeight: '600' }}>
-                Save ${(parsePrice(selectedDeal.originalPrice || '0') - parsePrice(selectedDeal.dealPrice || '0')).toFixed(2)} ({selectedDeal.discountPercent || calculateDiscountPercent(selectedDeal.originalPrice, selectedDeal.dealPrice)}% off)
+                Save ${(parsePrice(selectedDeal.originalPrice || '0') - parsePrice(selectedDeal.dealPrice || '0')).toFixed(2)} ({calculateDiscountPercent(selectedDeal.originalPrice, selectedDeal.dealPrice)}% off)
               </div>
             </div>
 
