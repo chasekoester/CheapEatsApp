@@ -240,7 +240,7 @@ if (bestMatch && bestMatch in FAST_FOOD_LOGOS) {
 }
 
 export default function DealsPage() {
-  const session = null // Temporarily disabled NextAuth for debugging
+  const { data: session } = useSession()
   const [deals, setDeals] = useState<(Deal & { distance: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<'initial' | 'ai_generating' | 'processing' | 'complete'>('initial')
