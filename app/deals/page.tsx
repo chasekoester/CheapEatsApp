@@ -1060,7 +1060,7 @@ export default function DealsPage() {
                       getDirectionsToRestaurant(deal.restaurantName, location || undefined)
                     }}
                   >
-                    🧭 Get Directions
+                    🗺️ Get Directions
                   </button>
                 </div>
               </div>
@@ -1213,7 +1213,7 @@ export default function DealsPage() {
                   gap: '0.5rem'
                 }}
               >
-                🧭 Get Directions
+                🗺️ Get Directions
               </button>
             </div>
           </div>
