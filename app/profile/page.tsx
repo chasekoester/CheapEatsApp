@@ -37,7 +37,15 @@ interface Deal {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  let session = null
+  let status = 'unauthenticated'
+  try {
+    const sessionData = useSession()
+    session = sessionData.data
+    status = sessionData.status
+  } catch (error) {
+    console.log('NextAuth error handled in profile page:', error)
+  }
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)

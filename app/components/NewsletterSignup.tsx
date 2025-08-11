@@ -4,7 +4,13 @@ import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 
 export default function NewsletterSignup() {
-  const { data: session } = useSession()
+  let session = null
+  try {
+    const sessionData = useSession()
+    session = sessionData.data
+  } catch (error) {
+    console.log('NextAuth error handled in newsletter:', error)
+  }
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
